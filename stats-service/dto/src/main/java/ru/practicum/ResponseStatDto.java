@@ -20,8 +20,4 @@ public class ResponseStatDto {
     String uri;
     @PositiveOrZero
     Long hits;
-
-    public static void getPinus() {
-
-    }
 }

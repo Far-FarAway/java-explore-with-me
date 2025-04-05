@@ -9,6 +9,7 @@ import ru.practicum.repository.StatsRepository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -25,6 +26,12 @@ public class StatsServiceImpl implements StatsService {
     @Override
     public List<ResponseStatDto> getStats(String st, String en, List<String> uris, Boolean unique) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        Comparator<ResponseStatDto> comparator = new Comparator<ResponseStatDto>() {
+            @Override
+            public int compare(ResponseStatDto o1, ResponseStatDto o2) {
+                return (int) (o1.getHits() - o2.getHits());
+            }
+        };
 
         LocalDateTime start = LocalDateTime.parse(st, formatter);
         LocalDateTime end = LocalDateTime.parse(en, formatter);
@@ -41,7 +48,9 @@ public class StatsServiceImpl implements StatsService {
                         return mapper.mapDto(stat, hits);
                     })
                     .distinct()
-                    .toList();
+                    .sorted(comparator)
+                    .toList()
+                    .reversed();
         } else {
             return repository.getStats(start, end).stream()
                     .map(stat -> {
@@ -49,7 +58,9 @@ public class StatsServiceImpl implements StatsService {
                         return mapper.mapDto(stat, hits);
                     })
                     .distinct()
-                    .toList();
+                    .sorted(comparator)
+                    .toList()
+                    .reversed();
         }
     }
 }

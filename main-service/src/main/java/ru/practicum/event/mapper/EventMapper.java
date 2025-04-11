@@ -23,7 +23,7 @@ public class EventMapper {
         this.categoryMapper = category;
     }
 
-    public EventFullDto mapDto(Event event) {
+    public EventFullDto mapDto(Event event, Long views) {
         return EventFullDto.builder()
                 .annotation(event.getAnnotation())
                 .category(categoryMapper.mapDto(event.getCategory()))
@@ -38,13 +38,13 @@ public class EventMapper {
                 .participantLimit(event.getParticipantLimit())
                 .id(event.getId())
                 .state(event.getState())
-                .views(event.getViews())
+                .views(views)
                 .requestModeration(event.isRequestModeration())
                 .title(event.getTitle())
                 .build();
     }
 
-    public EventShortDto mapShortDto(Event event) {
+    public EventShortDto mapShortDto(Event event, Long views) {
         return EventShortDto.builder()
                 .annotation(event.getAnnotation())
                 .category(categoryMapper.mapDto(event.getCategory()))
@@ -52,7 +52,7 @@ public class EventMapper {
                 .initiator(userMapper.mapShortDto(event.getInitiator()))
                 .paid(event.isPaid())
                 .id(event.getId())
-                .views(event.getViews())
+                .views(views)
                 .title(event.getTitle())
                 .build();
     }

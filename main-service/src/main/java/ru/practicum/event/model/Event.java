@@ -27,7 +27,6 @@ public class Event {
     String title;
     @Column
     String description;
-    @Column
     @ManyToOne(fetch = FetchType.LAZY)
     Category category;
     @Column(name = "created_on")
@@ -36,24 +35,24 @@ public class Event {
     LocalDateTime publishedOn;
     @Column(name = "event_date")
     LocalDateTime eventDate;
-    @Column
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     User initiator;
     @Column
+    @Embedded
     Location location;
     @Column
     boolean paid;
     @Column(name = "participant_limit")
+    @Builder.Default
     int participantLimit = 0;
     int confirmRequests;
     @Column(name = "request_moderation")
+    @Builder.Default
     boolean requestModeration = true;
     @Column
     @Enumerated(EnumType.STRING)
     EventState state;
-    @Column
-    Long views = 0L;
 
     @Override
     public boolean equals(Object o) {
@@ -66,12 +65,12 @@ public class Event {
                 Objects.equals(category, event.category) && Objects.equals(createdOn, event.createdOn) &&
                 Objects.equals(publishedOn, event.publishedOn) && Objects.equals(eventDate, event.eventDate) &&
                 Objects.equals(initiator, event.initiator) && Objects.equals(location, event.location) &&
-                state == event.state && Objects.equals(views, event.views);
+                state == event.state;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, annotation, title, description, category, createdOn, publishedOn, eventDate, initiator,
-                location, paid, participantLimit, confirmRequests, requestModeration, state, views);
+                location, paid, participantLimit, confirmRequests, requestModeration, state);
     }
 }

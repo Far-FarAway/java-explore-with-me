@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS events (
     description VARCHAR(500) NOT NULL,
     category_id INT REFERENCES categories(category_id) NOT NULL,
     createdOn TIMESTAMP NOT NULL,
-    publishedOn TIMESTAMP NOT NULL,
+    publishedOn TIMESTAMP,
     eventDate TIMESTAMP NOT NULL,
     user_id INT REFERENCES users(user_id),
     lot FLOAT NOT NULL,

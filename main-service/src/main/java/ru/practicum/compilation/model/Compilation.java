@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.event.model.Event;
 
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name = "compilations")
@@ -28,5 +28,5 @@ public class Compilation {
     @JoinTable(name = "compilations_events",
                 joinColumns = @JoinColumn(name = "compilation_id"),
                 inverseJoinColumns = @JoinColumn(name = "event_id"))
-    private Set<Event> events;
+    private List<Event> events;
 }

@@ -6,11 +6,11 @@ import ru.practicum.compilation.dto.RequestCompilationDto;
 import ru.practicum.compilation.model.Compilation;
 import ru.practicum.event.model.Event;
 
-import java.util.Set;
+import java.util.List;
 
 @Component
 public class CompilationMapper {
-    public Compilation mapPOJO(RequestCompilationDto dto, Set<Event> events) {
+    public Compilation mapPOJO(RequestCompilationDto dto, List<Event> events) {
         return Compilation.builder()
                 .title(dto.getTitle())
                 .pinned(dto.isPinned())

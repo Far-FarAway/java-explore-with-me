@@ -7,14 +7,14 @@ import lombok.Builder;
 import lombok.Data;
 import ru.practicum.event.model.Event;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Builder
 @Data
 public class CompilationDto {
     @Builder.Default
-    private Set<Event> events = new HashSet<>();
+    private List<Event> events = new ArrayList<>();
     @Positive
     private Long id;
     @NotNull

@@ -2,6 +2,8 @@ package ru.practicum.user.admin.service;
 
 import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.category.dto.NewCategoryDto;
+import ru.practicum.compilation.dto.CompilationDto;
+import ru.practicum.compilation.dto.RequestCompilationDto;
 import ru.practicum.user.dto.NewUserRequest;
 import ru.practicum.user.dto.UserDto;
 
@@ -19,4 +21,10 @@ public interface AdminService {
     void deleteCategory(Long catId);
 
     CategoryDto patchCategory(NewCategoryDto dto, Long catId);
+
+    CompilationDto postCompilation(RequestCompilationDto dto);
+
+    void deleteCompilation(Long compId);
+
+    CompilationDto patchCompilation(RequestCompilationDto dto, Long compId);
 }

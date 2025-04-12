@@ -1,8 +1,10 @@
 package ru.practicum;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
@@ -12,10 +14,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
+@Component
 public class Client {
     private RestTemplate rest;
 
-    public Client(String host, Integer port) {
+    public Client(@Value("${ru.practicum.client.host}") String host,
+                  @Value("${ru.practicum.client.port}") Integer port) {
         this.rest = new RestTemplateBuilder().uriTemplateHandler(new DefaultUriBuilderFactory("http://" + host + ":" + port))
                 .requestFactory(() -> new HttpComponentsClientHttpRequestFactory())
                 .build();

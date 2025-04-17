@@ -2,6 +2,7 @@ package ru.practicum;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
@@ -25,16 +26,21 @@ public class Client {
                 .build();
     }
 
-    public ResponseEntity<ResponseStatDto> getStats(Map<String, Object> params) {
+    public ResponseEntity<List<ResponseStatDto>> getStats(Map<String, Object> params) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
 
-        String encodedDate = URLEncoder.encode(params.get("timestamp").toString(), StandardCharsets.UTF_8);
-        params.put("timestamp", encodedDate);
+        //вроде как параметры кодируются еще системой при выполнении метода .exchange
+        //надо проверить, если будет ошибка
+        String encodedStart = URLEncoder.encode(params.get("start").toString(), StandardCharsets.UTF_8);
+        params.put("start", encodedStart);
+        String encodedEnd = URLEncoder.encode(params.get("end").toString(), StandardCharsets.UTF_8);
+        params.put("end", encodedEnd);
 
         HttpEntity<RequestStatDto> requestEntity = new HttpEntity<>(headers);
 
-        return rest.exchange("/stats", HttpMethod.GET, requestEntity, ResponseStatDto.class, params);
+        return rest.exchange("/stats", HttpMethod.GET, requestEntity,
+                new ParameterizedTypeReference<List<ResponseStatDto>>() {}, params);
     }
 
     public ResponseEntity<ResponseStatDto> postStat(RequestStatDto body) throws UnsupportedEncodingException {

@@ -1,5 +1,6 @@
 package ru.practicum.event.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.event.dto.EventFullDto;
@@ -24,7 +25,8 @@ public class EventController {
                                          @RequestParam(defaultValue = "false") boolean onlyAvailable,
                                          @RequestParam(required = false) String sort,
                                          @RequestParam(defaultValue = "0") int from,
-                                         @RequestParam(defaultValue = "10") int size) {
+                                         @RequestParam(defaultValue = "10") int size,
+                                         HttpServletRequest request) {
         SearchProperties properties = SearchProperties.builder()
                 .text(text)
                 .categories(categories)
@@ -37,11 +39,11 @@ public class EventController {
                 .size(size)
                 .build();
 
-        return service.getEvents(properties);
+        return service.getEvents(properties, request.getRemoteAddr());
     }
 
     @GetMapping("/{id}")
-    public EventFullDto getEvent(@PathVariable Long id) {
-        return service.getEvent(id);
+    public EventFullDto getEvent(@PathVariable Long id, HttpServletRequest request) {
+        return service.getEvent(id, request.getRemoteAddr());
     }
 }

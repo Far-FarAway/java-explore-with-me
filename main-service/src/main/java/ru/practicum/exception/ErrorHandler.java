@@ -47,5 +47,12 @@ public class ErrorHandler {
                 LocalDateTime.now().format(formatter));
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleInterruptedException(InterruptedException ex) {
+        return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.name(), "Thread was interrupted", ex.getMessage(),
+                LocalDateTime.now().format(formatter));
+    }
+
     public record ErrorResponse(String status, String reason, String message, String timestamp) {}
 }

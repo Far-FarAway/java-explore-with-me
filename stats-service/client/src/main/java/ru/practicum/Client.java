@@ -8,10 +8,9 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -30,17 +29,17 @@ public class Client {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
 
-        //вроде как параметры кодируются еще системой при выполнении метода .exchange
-        //надо проверить, если будет ошибка
-        String encodedStart = URLEncoder.encode(params.get("start").toString(), StandardCharsets.UTF_8);
-        params.put("start", encodedStart);
-        String encodedEnd = URLEncoder.encode(params.get("end").toString(), StandardCharsets.UTF_8);
-        params.put("end", encodedEnd);
+        String uri = UriComponentsBuilder.fromPath("/stats")
+                .queryParam("start", params.get("start"))
+                .queryParam("end", params.get("end"))
+                .queryParam("uris", params.get("uris"))
+                .build()
+                .toUriString();
 
         HttpEntity<RequestStatDto> requestEntity = new HttpEntity<>(headers);
 
-        return rest.exchange("/stats", HttpMethod.GET, requestEntity,
-                new ParameterizedTypeReference<List<ResponseStatDto>>() {}, params);
+        return rest.exchange(uri, HttpMethod.GET, requestEntity,
+                new ParameterizedTypeReference<List<ResponseStatDto>>() {});
     }
 
     public ResponseEntity<ResponseStatDto> postStat(RequestStatDto body) throws UnsupportedEncodingException {

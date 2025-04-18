@@ -33,7 +33,7 @@ public class EventMapper {
                 .createdOn(event.getCreatedOn().format(formatter))
                 .description(event.getDescription())
                 .eventDate(event.getEventDate().format(formatter))
-                .publishedOn(event.getPublishedOn().format(formatter))
+                .publishedOn(event.getPublishedOn() != null ? event.getPublishedOn().format(formatter) : null)
                 .initiator(userMapper.mapShortDto(event.getInitiator()))
                 .location(event.getLocation())
                 .paid(event.isPaid())
@@ -69,7 +69,7 @@ public class EventMapper {
                 .location(dto.getLocation())
                 .paid(dto.isPaid())
                 .participantLimit(dto.getParticipantLimit())
-                .requestModeration(dto.isRequestModeration())
+                .requestModeration(dto.getRequestModeration())
                 .title(dto.getTitle())
                 .build();
     }

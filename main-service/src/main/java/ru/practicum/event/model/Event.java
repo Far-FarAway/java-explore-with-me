@@ -21,21 +21,22 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "event_id")
     Long id;
-    @Column
+    @Column(length = 1000)
     String annotation;
     @Column
     String title;
-    @Column
+    @Column(length = 1000)
     String description;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     Category category;
     @Column(name = "created_on")
-    LocalDateTime createdOn;
+    @Builder.Default
+    LocalDateTime createdOn = LocalDateTime.now();
     @Column(name = "published_on")
     LocalDateTime publishedOn;
     @Column(name = "event_date")
     LocalDateTime eventDate;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     User initiator;
     @Column

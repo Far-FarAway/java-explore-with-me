@@ -1,6 +1,8 @@
 package ru.practicum.user.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
@@ -15,6 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
     private final UserService service;
 
@@ -24,8 +27,10 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/requests")
+    @ResponseStatus(HttpStatus.CREATED)
     public ParticipationRequestDto postUserRequests(@PathVariable Long userId,
                                                     @RequestParam Long eventId) {
+        log.info("post user(id={}) request to event(id={})", userId, eventId);
         return service.postUserRequests(userId, eventId);
     }
 
@@ -42,7 +47,9 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/events")
+    @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto postEvent(@RequestBody NewEventDto dto, @PathVariable Long userId) {
+        log.info("Post event: {}, from user with id = {}", dto, userId);
         return service.postEvent(dto, userId);
     }
 

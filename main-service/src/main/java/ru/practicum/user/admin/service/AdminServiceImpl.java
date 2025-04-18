@@ -143,17 +143,21 @@ public class AdminServiceImpl implements AdminService {
         Thread mainThread = new Thread(() -> {
             Event oldEvent = eventRepository.findById(eventId)
                     .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
-            Event updatedEvent = new Event();
-
-            if (oldEvent.getPublishedOn() == null || oldEvent.getPublishedOn().plusHours(1)
-                    .isBefore(LocalDateTime.parse(dto.getEventDate(), formatter))) {
-                throw new ConditionsNotMetException("Publish date must be after event date");
-            }
+            Event updatedEvent = Event.builder()
+                    .eventDate(dto.getEventDate() != null ? LocalDateTime.parse(dto.getEventDate(), formatter) :
+                            oldEvent.getEventDate())
+                    .build();
 
             switch (dto.getStateAction()) {
                 case StateAction.PUBLISH_EVENT -> {
+                    if (updatedEvent.getEventDate().plusHours(1)
+                            .isBefore(LocalDateTime.now())) {
+                        throw new ConditionsNotMetException("Publish date must be after event date");
+                    }
+
                     if (oldEvent.getState() == EventState.PENDING) {
                         updatedEvent.setState(EventState.PUBLISHED);
+                        updatedEvent.setPublishedOn(LocalDateTime.now());
                     } else {
                         throw new ConditionsNotMetException("Cannot publish the event because it's not in the right state: "
                                 + oldEvent.getState());
@@ -170,19 +174,21 @@ public class AdminServiceImpl implements AdminService {
                 }
             }
 
-            updatedEvent.toBuilder()
+            updatedEvent = oldEvent.toBuilder()
+                    .state(updatedEvent.getState())
+                    .publishedOn(updatedEvent.getPublishedOn())
                     .id(eventId)
                     .annotation(dto.getAnnotation() != null ? dto.getAnnotation() : oldEvent.getAnnotation())
                     .category(dto.getCategory() == null ? oldEvent.getCategory() :
                             catRepository.findById(dto.getCategory()).orElseThrow(() ->
                                     new NotFoundException("Category with id=" + dto.getCategory() + " was not found")))
                     .description(dto.getDescription() != null ? dto.getDescription() : oldEvent.getDescription())
-                    .eventDate(dto.getEventDate() != null ? LocalDateTime.parse(dto.getEventDate(), formatter) :
-                            oldEvent.getEventDate())
+                    .eventDate(updatedEvent.getEventDate())
                     .paid(dto.isPaid())
                     .participantLimit(dto.getParticipantLimit() != null ? dto.getParticipantLimit() :
                             oldEvent.getParticipantLimit())
-                    .requestModeration(dto.isRequestModeration())
+                    .requestModeration(dto.getRequestModeration() != null ? dto.getRequestModeration() :
+                            oldEvent.isRequestModeration())
                     .title(dto.getTitle() != null ? dto.getTitle() : oldEvent.getTitle())
                     .build();
 
@@ -196,7 +202,7 @@ public class AdminServiceImpl implements AdminService {
                     .format(formatter));
             params.put("end", LocalDateTime.of(3000, 1, 1, 0, 0, 0)
                     .format(formatter));
-            params.put("uris", "/events/" + eventId);
+            params.put("uris", List.of("/events/" + eventId));
 
             stats.add(client.getStats(params).getBody());
         });
@@ -210,7 +216,8 @@ public class AdminServiceImpl implements AdminService {
             Thread.currentThread().interrupt();
         }
 
-        return eventMapper.mapDto(eventRepository.save(event.getFirst()), stats.getFirst().getFirst().getHits());
+        return eventMapper.mapDto(eventRepository.save(event.getFirst()),
+                !stats.getFirst().isEmpty() ? stats.getFirst().getFirst().getHits() : 0L);
     }
 
     @Override

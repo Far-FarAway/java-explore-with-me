@@ -35,7 +35,7 @@ public class NewEventDto {
     @Builder.Default
     Integer participantLimit = 0;
     @Builder.Default
-    boolean requestModeration = true;
+    Boolean requestModeration = true;
     @NotBlank(groups = OnCreate.class)
     @NotNull(groups = OnCreate.class)
     String title;

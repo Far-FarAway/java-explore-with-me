@@ -24,6 +24,7 @@ import ru.practicum.user.mapper.RequestMapper;
 import ru.practicum.user.model.ParticipationRequest;
 import ru.practicum.user.model.RequestStatus;
 import ru.practicum.user.repository.RequestRepository;
+import ru.practicum.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -36,6 +37,7 @@ public class UserServiceImpl implements UserService {
     RequestRepository requestRepository;
     EventRepository eventRepository;
     CategoryRepository catRepository;
+    UserRepository userRepository;
     RequestMapper requestMapper;
     EventMapper eventMapper;
     Client client;
@@ -132,7 +134,12 @@ public class UserServiceImpl implements UserService {
                     "которая еще не наступила. Value: " + dto.getEventDate());
         }
 
-        return eventMapper.mapDto(eventRepository.save(eventMapper.mapPOJO(dto)), 0L);
+        Event event = eventMapper.mapPOJO(dto);
+        event.setInitiator(userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User with id=" + userId + " was not found")));
+        event.setState(EventState.PENDING);
+
+        return eventMapper.mapDto(eventRepository.save(event), 0L);
     }
 
     @Override
@@ -194,7 +201,8 @@ public class UserServiceImpl implements UserService {
                 .paid(dto.isPaid())
                 .participantLimit(dto.getParticipantLimit() != null ? dto.getParticipantLimit() :
                         oldEvent.getParticipantLimit())
-                .requestModeration(dto.isRequestModeration())
+                .requestModeration(dto.getRequestModeration() != null ? dto.getRequestModeration() :
+                        oldEvent.isRequestModeration())
                 .title(dto.getTitle() != null ? dto.getTitle() : oldEvent.getTitle())
                 .build();
 

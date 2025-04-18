@@ -86,6 +86,7 @@ public class AdminController {
 
     @PatchMapping("/events/{eventId}")
     public EventFullDto patchEvent(@RequestBody NewEventDto dto, @PathVariable Long eventId) {
+        log.info("Patch event(id={}) with properties: {}", eventId, dto);
         return service.patchEvent(dto, eventId);
     }
 

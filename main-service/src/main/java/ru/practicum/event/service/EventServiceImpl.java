@@ -4,7 +4,6 @@ import com.querydsl.core.BooleanBuilder;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.practicum.Client;
 import ru.practicum.RequestStatDto;
@@ -14,10 +13,12 @@ import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
+import ru.practicum.event.model.EventState;
 import ru.practicum.event.model.QEvent;
 import ru.practicum.event.model.SortType;
 import ru.practicum.event.repository.EventRepository;
 import ru.practicum.exception.NotFoundException;
+import ru.practicum.user.admin.repository.AdminRepository;
 import ru.practicum.user.model.SearchProperties;
 
 import java.io.UnsupportedEncodingException;
@@ -34,6 +35,7 @@ public class  EventServiceImpl implements EventsService {
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     EventRepository repository;
     CategoryRepository catRepository;
+    AdminRepository adminRepository;
     EventMapper mapper;
     Client client;
 
@@ -63,7 +65,7 @@ public class  EventServiceImpl implements EventsService {
         BooleanBuilder predicates = new BooleanBuilder();
         Map<String, Object> params = new HashMap<>();
 
-        prepareQuery(predicates, properties, params);
+        prepareQueryToGetEvents(predicates, properties, params);
 
         List<Stream<Event>> eventStream = new ArrayList<>();
         List<List<ResponseStatDto>> statsList = new ArrayList<>();
@@ -135,7 +137,7 @@ public class  EventServiceImpl implements EventsService {
 
     @Override
     public EventFullDto getEvent(Long id, String ip) {
-        final List<ResponseEntity<List<ResponseStatDto>>> stats = new ArrayList<>();
+        final List<List<ResponseStatDto>> stats = new ArrayList<>();
         final List<Optional<Event>> optEvent = new ArrayList<>();
 
         Thread clientThread = new Thread(() -> {
@@ -154,7 +156,7 @@ public class  EventServiceImpl implements EventsService {
             params.put("end", LocalDateTime.now().format(formatter));
             params.put("uris", Collections.singletonList("/events/" + id));
 
-            stats.add(client.getStats(params));
+            stats.add(client.getStats(params).getBody());
         });
 
         Thread eventThread = new Thread(() -> optEvent.add(repository.findById(id)));
@@ -175,12 +177,23 @@ public class  EventServiceImpl implements EventsService {
             throw new NotFoundException("Event with id=" + id + " was not found");
         }
 
-        return mapper.mapDto(event, stats.getFirst().getBody().getFirst().getHits());
+        return mapper.mapDto(event, stats.getFirst().getFirst().getHits());
     }
 
-    private void prepareQuery(BooleanBuilder predicates, SearchProperties properties, Map<String, Object> params) {
+    @Override
+    public void prepareQueryToGetEvents(BooleanBuilder predicates, SearchProperties properties,
+                                        Map<String, Object> params) {
         QEvent event = QEvent.event;
 
+        if (properties.getUsers() != null && !properties.getUsers().isEmpty()) {
+            predicates.and(event.initiator.in(adminRepository.findByIdIn(properties.getUsers())));
+        }
+
+        if (properties.getStates() != null && !properties.getStates().isEmpty()) {
+            List<EventState> states = properties.getStates().stream().map(EventState::valueOf).toList();
+
+            predicates.and(event.state.in(states));
+        }
 
         if (properties.getText() != null && !properties.getText().isEmpty()) {
             predicates.and(event.annotation.likeIgnoreCase(properties.getText())
@@ -210,7 +223,7 @@ public class  EventServiceImpl implements EventsService {
             params.put("end", LocalDateTime.now().format(formatter));
         }
 
-        if (properties.isOnlyAvailable()) {
+        if (properties.getOnlyAvailable() != null && properties.getOnlyAvailable()) {
             predicates.and(event.participantLimit.gt(event.confirmRequests).or(event.participantLimit.eq(0)));
         }
     }

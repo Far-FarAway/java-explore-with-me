@@ -7,8 +7,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.event.model.Location;
+import ru.practicum.event.model.StateAction;
 import ru.practicum.marker.OnCreate;
 
 @Builder
@@ -20,7 +20,7 @@ public class NewEventDto {
     String annotation;
     @NotBlank(groups = OnCreate.class)
     @NotNull(groups = OnCreate.class)
-    CategoryDto category;
+    Long category;
     @NotBlank(groups = OnCreate.class)
     @NotNull(groups = OnCreate.class)
     String description;
@@ -33,10 +33,11 @@ public class NewEventDto {
     boolean paid;
     @PositiveOrZero
     @Builder.Default
-    int participantLimit = 0;
+    Integer participantLimit = 0;
     @Builder.Default
     boolean requestModeration = true;
     @NotBlank(groups = OnCreate.class)
     @NotNull(groups = OnCreate.class)
     String title;
+    StateAction stateAction;
 }

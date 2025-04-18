@@ -54,5 +54,13 @@ public class ErrorHandler {
                 LocalDateTime.now().format(formatter));
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleForbiddenException(ConditionsNotMetException ex) {
+        return new ErrorResponse(HttpStatus.FORBIDDEN.name(),
+                "For the requested operation the conditions are not met.", ex.getMessage(),
+                LocalDateTime.now().format(formatter));
+    }
+
     public record ErrorResponse(String status, String reason, String message, String timestamp) {}
 }

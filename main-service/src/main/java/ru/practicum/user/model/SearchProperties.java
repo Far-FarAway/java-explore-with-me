@@ -15,7 +15,7 @@ public class SearchProperties {
     Boolean paid;
     String rangeStart;
     String rangeEnd;
-    boolean onlyAvailable;
+    Boolean onlyAvailable;
     String sort;
     int from;
     int size;

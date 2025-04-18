@@ -3,10 +3,12 @@ package ru.practicum.event.mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.practicum.category.mapper.CategoryMapper;
+import ru.practicum.category.repository.CategoryRepository;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.dto.NewEventDto;
 import ru.practicum.event.model.Event;
+import ru.practicum.exception.NotFoundException;
 import ru.practicum.user.mapper.UserMapper;
 
 import java.time.LocalDateTime;
@@ -17,10 +19,13 @@ public class EventMapper {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final UserMapper userMapper;
     private final CategoryMapper categoryMapper;
+    private final CategoryRepository categoryRepository;
 
-    public EventMapper(@Autowired UserMapper user, @Autowired CategoryMapper category) {
+    public EventMapper(@Autowired UserMapper user, @Autowired CategoryMapper category,
+                       @Autowired CategoryRepository repository) {
         this.userMapper = user;
         this.categoryMapper = category;
+        this.categoryRepository = repository;
     }
 
     public EventFullDto mapDto(Event event, Long views) {
@@ -60,7 +65,8 @@ public class EventMapper {
     public Event mapPOJO(NewEventDto dto) {
         return Event.builder()
                 .annotation(dto.getAnnotation())
-                .category(categoryMapper.mapPOJO(dto.getCategory()))
+                .category(categoryRepository.findById(dto.getCategory()).orElseThrow(() ->
+                        new NotFoundException("Category with id=" + dto.getCategory() + " was not found")))
                 .description(dto.getDescription())
                 .eventDate(LocalDateTime.parse(dto.getEventDate(), formatter))
                 .location(dto.getLocation())

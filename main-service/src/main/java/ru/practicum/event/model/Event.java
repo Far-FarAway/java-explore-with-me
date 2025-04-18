@@ -13,7 +13,7 @@ import java.util.Objects;
 @Table(name = "events")
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Event {

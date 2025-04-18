@@ -8,11 +8,15 @@ import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.category.dto.NewCategoryDto;
 import ru.practicum.compilation.dto.CompilationDto;
 import ru.practicum.compilation.dto.RequestCompilationDto;
+import ru.practicum.event.dto.EventFullDto;
+import ru.practicum.event.dto.EventShortDto;
+import ru.practicum.event.dto.NewEventDto;
 import ru.practicum.marker.OnCreate;
 import ru.practicum.marker.OnUpdate;
 import ru.practicum.user.admin.service.AdminService;
 import ru.practicum.user.dto.NewUserRequest;
 import ru.practicum.user.dto.UserDto;
+import ru.practicum.user.model.SearchProperties;
 
 import java.util.List;
 
@@ -74,5 +78,31 @@ public class AdminController {
     public CompilationDto patchCompilation(@Validated(OnUpdate.class) @RequestBody RequestCompilationDto dto,
                                            @PathVariable Long compId) {
         return service.patchCompilation(dto, compId);
+    }
+
+    @PatchMapping("/events/{eventId}")
+    public EventFullDto patchEvent(@RequestBody NewEventDto dto, @PathVariable Long eventId) {
+        return service.patchEvent(dto, eventId);
+    }
+
+    @GetMapping("/events")
+    public List<EventShortDto> getEvents(@RequestParam(required = false) List<Long> users,
+                                         @RequestParam(required = false) List<String> states,
+                                         @RequestParam(required = false) List<Long> categories,
+                                         @RequestParam(required = false) String rangeStart,
+                                         @RequestParam(required = false) String rangeEnd,
+                                         @RequestParam(defaultValue = "0") int from,
+                                         @RequestParam(defaultValue = "10") int size) {
+        SearchProperties properties = SearchProperties.builder()
+                .users(users)
+                .states(states)
+                .categories(categories)
+                .rangeStart(rangeStart)
+                .rangeEnd(rangeEnd)
+                .from(from)
+                .size(size)
+                .build();
+
+        return service.getEvents(properties);
     }
 }

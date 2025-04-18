@@ -192,8 +192,10 @@ public class AdminServiceImpl implements AdminService {
         Thread statThread = new Thread(() -> {
             Map<String, Object> params = new HashMap<>();
 
-            params.put("start", LocalDateTime.of(2000, 1, 1, 0, 0, 0));
-            params.put("end", LocalDateTime.now());
+            params.put("start", LocalDateTime.of(2000, 1, 1, 0, 0, 0)
+                    .format(formatter));
+            params.put("end", LocalDateTime.of(3000, 1, 1, 0, 0, 0)
+                    .format(formatter));
             params.put("uris", "/events/" + eventId);
 
             stats.add(client.getStats(params).getBody());

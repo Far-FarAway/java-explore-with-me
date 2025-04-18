@@ -21,4 +21,6 @@ public interface EventRepository extends JpaRepository<Event, Long>, QuerydslPre
             "SET e.confirmRequests = e.confirmRequests - 1 " +
             "WHERE e.id = ?1")
     void decreaseConfirmRequests(Long eventId);
+
+    List<Event> findByInitiator_Id(Long userId);
 }

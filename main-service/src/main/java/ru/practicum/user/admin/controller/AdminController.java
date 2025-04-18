@@ -1,6 +1,7 @@
 package ru.practicum.user.admin.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor
+@Slf4j
 public class AdminController {
     private final AdminService service;
 
@@ -30,6 +32,7 @@ public class AdminController {
     public List<UserDto> getUsers(@RequestParam(required = false) List<Long> ids,
                                   @RequestParam(defaultValue = "0") int from,
                                   @RequestParam(defaultValue = "10") int size) {
+        log.info("get users with ids [{}], from {} index and with size {}", ids, from, size);
         return service.getUsers(ids, from, size);
     }
 
@@ -48,6 +51,7 @@ public class AdminController {
     @PostMapping("/categories")
     @ResponseStatus(HttpStatus.CREATED)
     public CategoryDto postCategory(@Validated(OnCreate.class) @RequestBody NewCategoryDto dto) {
+        log.info("Post category = {}", dto);
         return service.postCategory(dto);
     }
 

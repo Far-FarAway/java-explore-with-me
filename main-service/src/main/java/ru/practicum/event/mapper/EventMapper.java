@@ -1,6 +1,8 @@
 package ru.practicum.event.mapper;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Component;
 import ru.practicum.category.mapper.CategoryMapper;
 import ru.practicum.category.repository.CategoryRepository;
@@ -15,18 +17,13 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Component
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class EventMapper {
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private final UserMapper userMapper;
-    private final CategoryMapper categoryMapper;
-    private final CategoryRepository categoryRepository;
-
-    public EventMapper(@Autowired UserMapper user, @Autowired CategoryMapper category,
-                       @Autowired CategoryRepository repository) {
-        this.userMapper = user;
-        this.categoryMapper = category;
-        this.categoryRepository = repository;
-    }
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    UserMapper userMapper;
+    CategoryMapper categoryMapper;
+    CategoryRepository categoryRepository;
 
     public EventFullDto mapDto(Event event, Long views) {
         return EventFullDto.builder()

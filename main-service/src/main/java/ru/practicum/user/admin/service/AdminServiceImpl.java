@@ -101,13 +101,10 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public CategoryDto patchCategory(NewCategoryDto dto, Long catId) {
-        if (catRepository.existsById(catId)) {
-            throw new NotFoundException("Category with id=" + catId + " was not found");
-        }
+        Category cat = catRepository.findById(catId)
+                .orElseThrow(() ->  new NotFoundException("Category with id=" + catId + " was not found"));
 
-        Category cat = catMapper.mapPOJO(dto);
-
-        cat.setId(catId);
+        cat.setName(dto.getName());
 
         return catMapper.mapDto(catRepository.save(cat));
     }

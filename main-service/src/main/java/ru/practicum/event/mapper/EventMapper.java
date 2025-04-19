@@ -29,7 +29,7 @@ public class EventMapper {
         return EventFullDto.builder()
                 .annotation(event.getAnnotation())
                 .category(categoryMapper.mapDto(event.getCategory()))
-                .confirmRequests(event.getConfirmRequests())
+                .confirmedRequests(event.getConfirmRequests())
                 .createdOn(event.getCreatedOn().format(formatter))
                 .description(event.getDescription())
                 .eventDate(event.getEventDate().format(formatter))

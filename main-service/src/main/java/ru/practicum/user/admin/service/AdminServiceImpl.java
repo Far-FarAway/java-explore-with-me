@@ -18,7 +18,6 @@ import ru.practicum.compilation.mapper.CompilationMapper;
 import ru.practicum.compilation.model.Compilation;
 import ru.practicum.compilation.repository.CompilationRepository;
 import ru.practicum.event.dto.EventFullDto;
-import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.dto.NewEventDto;
 import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
@@ -221,7 +220,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public List<EventShortDto> getEvents(SearchProperties properties) {
+    public List<EventFullDto> getEvents(SearchProperties properties) {
         BooleanBuilder predicates = new BooleanBuilder();
         Map<String, Object> params = new HashMap<>();
 
@@ -259,7 +258,7 @@ public class AdminServiceImpl implements AdminService {
                         views = stats.get(event.getId());
                     }
 
-                    return eventMapper.mapShortDto(event, views);
+                    return eventMapper.mapDto(event, views);
                 })
                 .skip(properties.getFrom())
                 .limit(properties.getSize())

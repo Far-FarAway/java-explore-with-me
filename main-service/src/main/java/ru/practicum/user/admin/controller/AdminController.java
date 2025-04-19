@@ -10,7 +10,6 @@ import ru.practicum.category.dto.NewCategoryDto;
 import ru.practicum.compilation.dto.CompilationDto;
 import ru.practicum.compilation.dto.RequestCompilationDto;
 import ru.practicum.event.dto.EventFullDto;
-import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.dto.NewEventDto;
 import ru.practicum.marker.OnCreate;
 import ru.practicum.marker.OnUpdate;
@@ -91,7 +90,7 @@ public class AdminController {
     }
 
     @GetMapping("/events")
-    public List<EventShortDto> getEvents(@RequestParam(required = false) List<Long> users,
+    public List<EventFullDto> getEvents(@RequestParam(required = false) List<Long> users,
                                          @RequestParam(required = false) List<String> states,
                                          @RequestParam(required = false) List<Long> categories,
                                          @RequestParam(required = false) String rangeStart,

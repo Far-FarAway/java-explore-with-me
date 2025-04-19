@@ -5,7 +5,6 @@ import ru.practicum.category.dto.NewCategoryDto;
 import ru.practicum.compilation.dto.CompilationDto;
 import ru.practicum.compilation.dto.RequestCompilationDto;
 import ru.practicum.event.dto.EventFullDto;
-import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.dto.NewEventDto;
 import ru.practicum.user.dto.NewUserRequest;
 import ru.practicum.user.dto.UserDto;
@@ -34,5 +33,5 @@ public interface AdminService {
 
     EventFullDto patchEvent(NewEventDto dto, Long eventId);
 
-    List<EventShortDto> getEvents(SearchProperties properties);
+    List<EventFullDto> getEvents(SearchProperties properties);
 }

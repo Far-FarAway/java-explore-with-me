@@ -148,6 +148,7 @@ public class  EventServiceImpl implements EventsService {
                     .timestamp(LocalDateTime.now().format(formatter))
                     .build();
 
+            client.postStat(postStat);
 
             Map<String, Object> params = new HashMap<>();
 

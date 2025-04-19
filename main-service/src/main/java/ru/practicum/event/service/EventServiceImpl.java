@@ -17,11 +17,11 @@ import ru.practicum.event.model.EventState;
 import ru.practicum.event.model.QEvent;
 import ru.practicum.event.model.SortType;
 import ru.practicum.event.repository.EventRepository;
+import ru.practicum.exception.ConditionsNotMetException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.user.admin.repository.AdminRepository;
 import ru.practicum.user.model.SearchProperties;
 
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -113,11 +113,7 @@ public class  EventServiceImpl implements EventsService {
                             .timestamp(LocalDateTime.now().format(formatter))
                             .build();
 
-                    try {
-                        client.postStat(stat);
-                    } catch (UnsupportedEncodingException e) {
-                        throw new RuntimeException(e);
-                    }
+                    client.postStat(stat);
                 });
 
         if (properties.getSort() != null && !properties.getSort().isEmpty()) {
@@ -138,7 +134,7 @@ public class  EventServiceImpl implements EventsService {
     @Override
     public EventFullDto getEvent(Long id, String ip) {
         final List<List<ResponseStatDto>> stats = new ArrayList<>();
-        final List<Optional<Event>> optEvent = new ArrayList<>();
+        final List<Event> event = new ArrayList<>();
 
         Thread clientThread = new Thread(() -> {
             RequestStatDto postStat = RequestStatDto.builder()
@@ -160,7 +156,8 @@ public class  EventServiceImpl implements EventsService {
             stats.add(client.getStats(params).getBody());
         });
 
-        Thread eventThread = new Thread(() -> optEvent.add(repository.findById(id)));
+        Thread eventThread = new Thread(() -> event.add(repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Event with id=" + id + " was not found"))));
 
         try {
             clientThread.start();
@@ -171,14 +168,12 @@ public class  EventServiceImpl implements EventsService {
             Thread.currentThread().interrupt();
         }
 
-        Event event = optEvent.getFirst()
-                .orElseThrow(() -> new NotFoundException("Event with id=" + id + " was not found"));
-
-        if (event.getPublishedOn() == null) {
-            throw new NotFoundException("Event with id=" + id + " was not found");
+        if (event.getFirst().getPublishedOn() == null) {
+            throw new ConditionsNotMetException("Event must be published");
         }
 
-        return mapper.mapDto(event, stats.getFirst().getFirst().getHits());
+        return mapper.mapDto(event.getFirst(),
+                !stats.getFirst().isEmpty() ? stats.getFirst().getFirst().getHits() : 0L);
     }
 
     @Override

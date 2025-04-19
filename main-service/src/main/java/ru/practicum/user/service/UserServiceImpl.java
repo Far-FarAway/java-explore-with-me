@@ -168,7 +168,8 @@ public class UserServiceImpl implements UserService {
             Thread.currentThread().interrupt();
         }
 
-        return eventMapper.mapDto(events.getFirst(), stats.getFirst().getFirst().getHits());
+        return eventMapper.mapDto(events.getFirst(),
+                !stats.getFirst().isEmpty() ? stats.getFirst().getFirst().getHits() : 0L);
     }
 
     @Override
@@ -230,7 +231,8 @@ public class UserServiceImpl implements UserService {
             Thread.currentThread().interrupt();
         }
 
-        return eventMapper.mapDto(events.getFirst(), stats.getFirst().getFirst().getHits());
+        return eventMapper.mapDto(events.getFirst(),
+                !stats.getFirst().isEmpty() ? stats.getFirst().getFirst().getHits() : 0L);
     }
 
     @Override

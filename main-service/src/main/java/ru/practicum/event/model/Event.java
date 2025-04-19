@@ -21,11 +21,11 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "event_id")
     Long id;
-    @Column(length = 1000)
+    @Column(length = 2000)
     String annotation;
-    @Column
+    @Column(length = 120)
     String title;
-    @Column(length = 1000)
+    @Column(length = 7000)
     String description;
     @ManyToOne
     @JoinColumn(name = "category_id")
@@ -44,10 +44,11 @@ public class Event {
     @Embedded
     Location location;
     @Column
-    boolean paid;
+    boolean paid = false;
     @Column(name = "participant_limit")
     @Builder.Default
     int participantLimit = 0;
+    @Column(name = "confirmed_requests")
     int confirmRequests;
     @Column(name = "request_moderation")
     @Builder.Default

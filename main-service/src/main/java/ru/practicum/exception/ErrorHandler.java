@@ -71,5 +71,13 @@ public class ErrorHandler {
                 LocalDateTime.now().format(formatter));
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleBadRequestException(BadRequestException ex) {
+        return new ErrorResponse(HttpStatus.BAD_REQUEST.name(),
+                "Incorrectly made request.", ex.getMessage(),
+                LocalDateTime.now().format(formatter));
+    }
+
     public record ErrorResponse(String status, String reason, String message, String timestamp) {}
 }

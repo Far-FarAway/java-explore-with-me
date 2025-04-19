@@ -67,9 +67,9 @@ public class EventMapper {
                 .description(dto.getDescription())
                 .eventDate(LocalDateTime.parse(dto.getEventDate(), formatter))
                 .location(dto.getLocation())
-                .paid(dto.getPaid())
-                .participantLimit(dto.getParticipantLimit())
-                .requestModeration(dto.getRequestModeration())
+                .participantLimit(dto.getParticipantLimit() != null ? dto.getParticipantLimit() : 0)
+                .paid(dto.getPaid() != null ? dto.getPaid() : false)
+                .requestModeration(dto.getRequestModeration() != null ? dto.getRequestModeration() : true)
                 .title(dto.getTitle())
                 .build();
     }

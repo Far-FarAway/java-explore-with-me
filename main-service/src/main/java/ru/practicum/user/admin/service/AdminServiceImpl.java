@@ -25,6 +25,7 @@ import ru.practicum.event.model.EventState;
 import ru.practicum.event.model.StateAction;
 import ru.practicum.event.repository.EventRepository;
 import ru.practicum.event.service.EventsService;
+import ru.practicum.exception.BadRequestException;
 import ru.practicum.exception.ConditionsNotMetException;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
@@ -58,11 +59,19 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public List<UserDto> getUsers(List<Long> ids, int from, int size) {
-        return repository.findByIdIn(ids).stream()
-                .map(mapper::mapDto)
-                .skip(from)
-                .limit(size)
-                .toList();
+        if (ids != null && !ids.isEmpty()) {
+            return repository.findByIdIn(ids).stream()
+                    .map(mapper::mapDto)
+                    .skip(from)
+                    .limit(size)
+                    .toList();
+        } else {
+            return repository.findAll().stream()
+                    .map(mapper::mapDto)
+                    .skip(from)
+                    .limit(size)
+                    .toList();
+        }
     }
 
     @Override
@@ -136,6 +145,12 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public EventFullDto patchEvent(NewEventDto dto, Long eventId) {
+        if (dto.getEventDate() != null && !dto.getEventDate().isEmpty() &&
+                LocalDateTime.parse(dto.getEventDate(), formatter)
+                        .isBefore(LocalDateTime.now())) {
+            throw new BadRequestException("Event date before now");
+        }
+
         List<Optional<Event>> event = new ArrayList<>();
         List<List<ResponseStatDto>> stats = new ArrayList<>();
 
@@ -150,7 +165,7 @@ public class AdminServiceImpl implements AdminService {
                     .format(formatter));
             params.put("end", LocalDateTime.of(3000, 1, 1, 0, 0, 0)
                     .format(formatter));
-            params.put("uris", List.of("/events/" + eventId));
+            params.put("uris", "/events/" + eventId);
 
             stats.add(client.getStats(params).getBody());
         });
@@ -172,37 +187,39 @@ public class AdminServiceImpl implements AdminService {
                         oldEvent.getEventDate())
                 .build();
 
-        switch (dto.getStateAction()) {
-            case StateAction.PUBLISH_EVENT -> {
-                if (updatedEvent.getEventDate().plusHours(1)
-                        .isBefore(LocalDateTime.now())) {
-                    throw new ConditionsNotMetException("Publish date must be after event date");
+        if (dto.getStateAction() != null) {
+            switch (dto.getStateAction()) {
+                case StateAction.PUBLISH_EVENT -> {
+                    if (updatedEvent.getEventDate().plusHours(1)
+                            .isBefore(LocalDateTime.now())) {
+                        throw new ConditionsNotMetException("Publish date must be after event date");
+                    }
+
+                    if (oldEvent.getState() == EventState.PENDING) {
+                        updatedEvent.setState(EventState.PUBLISHED);
+                        updatedEvent.setPublishedOn(LocalDateTime.now());
+                    } else {
+                        throw new ConflictException("Cannot publish the event because it's not in the right state: "
+                                + oldEvent.getState(), "For the requested operation the conditions are not met.");
+                    }
                 }
 
-                if (oldEvent.getState() == EventState.PENDING) {
-                    updatedEvent.setState(EventState.PUBLISHED);
-                    updatedEvent.setPublishedOn(LocalDateTime.now());
-                } else {
-                    throw new ConflictException("Cannot publish the event because it's not in the right state: "
-                            + oldEvent.getState(), "For the requested operation the conditions are not met.");
+                case StateAction.CANCEL_REVIEW -> {
+                    if (oldEvent.getState() != EventState.PUBLISHED) {
+                        updatedEvent.setState(EventState.CANCELED);
+                    } else {
+                        throw new ConflictException("Cannot cancel the event because it's not in the right state: "
+                                + oldEvent.getState(), "For the requested operation the conditions are not met.");
+                    }
                 }
-            }
 
-            case StateAction.CANCEL_REVIEW -> {
-                if (oldEvent.getState() != EventState.PUBLISHED) {
-                    updatedEvent.setState(EventState.CANCELED);
-                } else {
-                    throw new ConflictException("Cannot cancel the event because it's not in the right state: "
-                            + oldEvent.getState(), "For the requested operation the conditions are not met.");
-                }
-            }
-
-            case StateAction.REJECT_EVENT -> {
-                if (oldEvent.getState() != EventState.PUBLISHED) {
-                    updatedEvent.setState(EventState.REJECTED);
-                } else {
-                    throw new ConflictException("Cannot reject the event because it's not in the right state: "
-                            + oldEvent.getState(), "For the requested operation the conditions are not met.");
+                case StateAction.REJECT_EVENT -> {
+                    if (oldEvent.getState() != EventState.PUBLISHED) {
+                        updatedEvent.setState(EventState.REJECTED);
+                    } else {
+                        throw new ConflictException("Cannot reject the event because it's not in the right state: "
+                                + oldEvent.getState(), "For the requested operation the conditions are not met.");
+                    }
                 }
             }
         }

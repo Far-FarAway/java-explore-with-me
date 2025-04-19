@@ -29,7 +29,7 @@ public class StatsController {
     @ResponseStatus(HttpStatus.OK)
     public List<ResponseStatDto> getStats(@RequestParam String start, @RequestParam String end,
                                           @RequestParam(required = false) List<String> uris,
-                                          @RequestParam(defaultValue = "false") Boolean unique) {
+                                          @RequestParam(defaultValue = "true") Boolean unique) {
         log.info("Get stat between date {} and {}, unique = {}, uris: {}", start, end, unique, uris);
         return service.getStats(start, end, uris, unique);
     }

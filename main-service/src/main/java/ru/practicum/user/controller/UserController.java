@@ -3,10 +3,13 @@ package ru.practicum.user.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.dto.NewEventDto;
+import ru.practicum.marker.OnCreate;
+import ru.practicum.marker.OnUpdate;
 import ru.practicum.user.dto.request.EventRequestStatusUpdateRequest;
 import ru.practicum.user.dto.request.EventRequestStatusUpdateResult;
 import ru.practicum.user.dto.request.ParticipationRequestDto;
@@ -48,7 +51,7 @@ public class UserController {
 
     @PostMapping("/{userId}/events")
     @ResponseStatus(HttpStatus.CREATED)
-    public EventFullDto postEvent(@RequestBody NewEventDto dto, @PathVariable Long userId) {
+    public EventFullDto postEvent(@Validated(OnCreate.class) @RequestBody NewEventDto dto, @PathVariable Long userId) {
         log.info("Post event: {}, from user with id = {}", dto, userId);
         return service.postEvent(dto, userId);
     }
@@ -60,7 +63,7 @@ public class UserController {
 
     @PatchMapping("/{userId}/events/{eventId}")
     public EventFullDto patchUserEvent(@PathVariable Long userId, @PathVariable Long eventId,
-                                       @RequestBody NewEventDto dto) {
+                                       @Validated(OnUpdate.class) @RequestBody NewEventDto dto) {
         return service.patchUserEvent(userId, eventId, dto);
     }
 

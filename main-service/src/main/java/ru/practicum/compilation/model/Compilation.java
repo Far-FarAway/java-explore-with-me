@@ -22,7 +22,7 @@ public class Compilation {
     private Long id;
     @Column
     private boolean pinned;
-    @Column
+    @Column(length = 50)
     private String title;
     @ManyToMany
     @JoinTable(name = "compilations_events",

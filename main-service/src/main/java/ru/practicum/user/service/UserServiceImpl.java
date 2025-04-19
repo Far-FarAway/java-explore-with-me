@@ -15,6 +15,7 @@ import ru.practicum.event.model.Event;
 import ru.practicum.event.model.EventState;
 import ru.practicum.event.model.StateAction;
 import ru.practicum.event.repository.EventRepository;
+import ru.practicum.exception.BadRequestException;
 import ru.practicum.exception.ConditionsNotMetException;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
@@ -65,7 +66,7 @@ public class UserServiceImpl implements UserService {
                 .requester(userId)
                 .build();
 
-        if (event.isRequestModeration()) {
+        if (event.isRequestModeration() && event.getParticipantLimit() > 0) {
             request.setStatus(RequestStatus.PENDING);
         } else {
             request.setStatus(RequestStatus.CONFIRMED);
@@ -131,7 +132,7 @@ public class UserServiceImpl implements UserService {
         LocalDateTime eventDate = LocalDateTime.parse(dto.getEventDate(), formatter);
 
         if (eventDate.isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new ConditionsNotMetException("Field: eventDate. Error: должно содержать дату, " +
+            throw new BadRequestException("Field: eventDate. Error: должно содержать дату, " +
                     "которая еще не наступила. Value: " + dto.getEventDate());
         }
 
@@ -154,7 +155,7 @@ public class UserServiceImpl implements UserService {
                 .format(formatter));
         params.put("end", LocalDateTime.of(3000, 1, 1, 0, 0, 0)
                 .format(formatter));
-        params.put("uris", List.of("/events/" + eventId));
+        params.put("uris", "/events/" + eventId);
 
         Thread statThread = new Thread(() -> stats.add(client.getStats(params).getBody()));
         Thread mainThread = new Thread(() -> events.add(eventRepository.findById(eventId)));
@@ -185,11 +186,12 @@ public class UserServiceImpl implements UserService {
                 null;
 
         if (newEventDate != null && newEventDate.isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new ConditionsNotMetException("Field: eventDate. Error: должно содержать дату, " +
+            throw new BadRequestException("Field: eventDate. Error: должно содержать дату, " +
                     "которая еще не наступила. Value: " + dto.getEventDate());
         }
 
-        if (oldEvent.getState() != EventState.PENDING && oldEvent.getState() != EventState.CANCELED) {
+        if (oldEvent.getState() != EventState.PENDING && oldEvent.getState() != EventState.CANCELED &&
+                dto.getStateAction() != StateAction.SEND_TO_REVIEW) {
             throw new ConflictException("Only pending or canceled events can be changed",
                     "For the requested operation the conditions are not met.");
         }
@@ -215,6 +217,8 @@ public class UserServiceImpl implements UserService {
             updatedEvent.setState(EventState.PUBLISHED);
         } else if (dto.getStateAction() == StateAction.CANCEL_REVIEW) {
             updatedEvent.setState(EventState.CANCELED);
+        } else if (dto.getStateAction() == StateAction.SEND_TO_REVIEW) {
+            updatedEvent.setState(EventState.PENDING);
         }
 
         Thread statThread = new Thread(() -> {
@@ -224,7 +228,7 @@ public class UserServiceImpl implements UserService {
                     .format(formatter));
             params.put("end", LocalDateTime.of(3000, 1, 1, 0, 0, 0)
                     .format(formatter));
-            params.put("uris", List.of("/events/" + eventId));
+            params.put("uris", "/events/" + eventId);
 
             stats.add(client.getStats(params).getBody());
         });
@@ -316,7 +320,7 @@ public class UserServiceImpl implements UserService {
                     "Integrity constraint has been violated.");
         }
 
-        if (event.getParticipantLimit() == event.getConfirmRequests()) {
+        if (event.getParticipantLimit() > 0 && event.getParticipantLimit() == event.getConfirmRequests()) {
             throw new ConflictException("Requests limit is overfull",
                     "Integrity constraint has been violated.");
         }

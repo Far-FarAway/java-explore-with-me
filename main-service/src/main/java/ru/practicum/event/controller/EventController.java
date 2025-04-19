@@ -2,6 +2,7 @@ package ru.practicum.event.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
@@ -10,6 +11,7 @@ import ru.practicum.user.model.SearchProperties;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/events")
 @RequiredArgsConstructor
@@ -19,7 +21,7 @@ public class EventController {
     @GetMapping
     public List<EventShortDto> getEvents(@RequestParam(required = false) String text,
                                          @RequestParam(required = false) List<Long> categories,
-                                         @RequestParam(required = false) boolean paid,
+                                         @RequestParam(required = false) Boolean paid,
                                          @RequestParam(required = false) String rangeStart,
                                          @RequestParam(required = false) String rangeEnd,
                                          @RequestParam(defaultValue = "false") boolean onlyAvailable,
@@ -39,6 +41,7 @@ public class EventController {
                 .size(size)
                 .build();
 
+        log.info("Get events from ip = {} and properties: {}", request.getRemoteAddr(), properties);
         return service.getEvents(properties, request.getRemoteAddr());
     }
 

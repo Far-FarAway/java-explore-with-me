@@ -7,9 +7,11 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.validator.constraints.Length;
 import ru.practicum.event.model.Location;
 import ru.practicum.event.model.StateAction;
 import ru.practicum.marker.OnCreate;
+import ru.practicum.marker.OnUpdate;
 
 @Builder
 @Data
@@ -17,27 +19,32 @@ import ru.practicum.marker.OnCreate;
 public class NewEventDto {
     @NotBlank(groups = OnCreate.class)
     @NotNull(groups = OnCreate.class)
+    @Length(groups = {OnCreate.class, OnUpdate.class},
+            min = 20, max = 2000)
     String annotation;
-    @NotBlank(groups = OnCreate.class)
     @NotNull(groups = OnCreate.class)
     Long category;
     @NotBlank(groups = OnCreate.class)
     @NotNull(groups = OnCreate.class)
+    @Length(groups = {OnCreate.class, OnUpdate.class},
+            min = 20, max = 7000)
     String description;
     @NotBlank(groups = OnCreate.class)
     @NotNull(groups = OnCreate.class)
     String eventDate;
     @NotNull(groups = OnCreate.class)
     Location location;
-    @NotNull(groups = OnCreate.class)
-    Boolean paid;
-    @PositiveOrZero
+    @Builder.Default
+    Boolean paid = false;
+    @PositiveOrZero(groups = {OnCreate.class, OnUpdate.class})
     @Builder.Default
     Integer participantLimit = 0;
     @Builder.Default
     Boolean requestModeration = true;
     @NotBlank(groups = OnCreate.class)
     @NotNull(groups = OnCreate.class)
+    @Length(groups = {OnCreate.class, OnUpdate.class},
+            min = 3, max = 120)
     String title;
     StateAction stateAction;
 }

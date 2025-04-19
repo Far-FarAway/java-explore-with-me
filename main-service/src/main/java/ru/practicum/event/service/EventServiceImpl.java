@@ -17,7 +17,7 @@ import ru.practicum.event.model.EventState;
 import ru.practicum.event.model.QEvent;
 import ru.practicum.event.model.SortType;
 import ru.practicum.event.repository.EventRepository;
-import ru.practicum.exception.ConditionsNotMetException;
+import ru.practicum.exception.BadRequestException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.user.admin.repository.AdminRepository;
 import ru.practicum.user.model.SearchProperties;
@@ -41,27 +41,29 @@ public class  EventServiceImpl implements EventsService {
 
     @Override
     public List<EventShortDto> getEvents(SearchProperties properties, String ip) {
-        Comparator<EventShortDto> viewsComparator = new Comparator<EventShortDto>() {
-            @Override
-            public int compare(EventShortDto o1, EventShortDto o2) {
-                return o1.getViews().compareTo(o2.getViews());
-            }
-        };
-        Comparator<EventShortDto> dateComparator = new Comparator<EventShortDto>() {
-            @Override
-            public int compare(EventShortDto o1, EventShortDto o2) {
-                LocalDateTime date1 = LocalDateTime.parse(o1.getEventDate(), formatter);
-                LocalDateTime date2 = LocalDateTime.parse(o2.getEventDate(), formatter);
+        Comparator<EventShortDto> viewsComparator = (o1, o2) -> o1.getViews().compareTo(o2.getViews());
+        Comparator<EventShortDto> dateComparator = (o1, o2) -> {
+            LocalDateTime date1 = LocalDateTime.parse(o1.getEventDate(), formatter);
+            LocalDateTime date2 = LocalDateTime.parse(o2.getEventDate(), formatter);
 
-                if (date1.isAfter(date2)) {
-                    return 3;
-                } else if (date1.isBefore(date2)) {
-                    return -3;
-                } else {
-                    return 0;
-                }
+            if (date1.isAfter(date2)) {
+                return 3;
+            } else if (date1.isBefore(date2)) {
+                return -3;
+            } else {
+                return 0;
             }
         };
+
+        if (properties.getRangeStart() != null && !properties.getRangeStart().isEmpty() &&
+                properties.getRangeEnd() != null && !properties.getRangeEnd().isEmpty()) {
+            LocalDateTime start = LocalDateTime.parse(properties.getRangeStart(), formatter);
+            LocalDateTime end = LocalDateTime.parse(properties.getRangeEnd(), formatter);
+            if (end.getYear() - start.getYear() < 0) {
+                throw new BadRequestException("Start date is after end date");
+            }
+        }
+
         BooleanBuilder predicates = new BooleanBuilder();
         Map<String, Object> params = new HashMap<>();
 
@@ -101,8 +103,6 @@ public class  EventServiceImpl implements EventsService {
 
                     return mapper.mapShortDto(event, views);
                 })
-                .skip(properties.getFrom())
-                .limit(properties.getSize())
                 .toList();
 
         events.forEach(event -> {
@@ -128,7 +128,10 @@ public class  EventServiceImpl implements EventsService {
             }
         }
 
-        return events;
+        return events.stream()
+                .skip(properties.getFrom())
+                .limit(properties.getSize())
+                .toList();
     }
 
     @Override
@@ -136,22 +139,22 @@ public class  EventServiceImpl implements EventsService {
         final List<List<ResponseStatDto>> stats = new ArrayList<>();
         final List<Optional<Event>> events = new ArrayList<>();
 
+        RequestStatDto postStat = RequestStatDto.builder()
+                .app("ewm-main-service")
+                .uri("/events/" + id)
+                .ip(ip)
+                .timestamp(LocalDateTime.now().format(formatter))
+                .build();
+
+        client.postStat(postStat);
+
         Thread clientThread = new Thread(() -> {
-            RequestStatDto postStat = RequestStatDto.builder()
-                    .app("ewm-main-service")
-                    .uri("/events/" + id)
-                    .ip(ip)
-                    .timestamp(LocalDateTime.now().format(formatter))
-                    .build();
-
-            client.postStat(postStat);
-
             Map<String, Object> params = new HashMap<>();
 
             params.put("start", LocalDateTime
                     .of(2000, 1, 1, 0, 0).format(formatter));
             params.put("end", LocalDateTime.now().format(formatter));
-            params.put("uris", Collections.singletonList("/events/" + id));
+            params.put("uris", "/events/" + id);
 
             stats.add(client.getStats(params).getBody());
         });
@@ -171,7 +174,7 @@ public class  EventServiceImpl implements EventsService {
                 .orElseThrow(() -> new NotFoundException("Event with id=" + id + " was not found"));
 
         if (event.getPublishedOn() == null) {
-            throw new ConditionsNotMetException("Event must be published");
+            throw new NotFoundException("Event must be published");
         }
 
         return mapper.mapDto(event,
@@ -199,7 +202,7 @@ public class  EventServiceImpl implements EventsService {
         }
 
         if (properties.getCategories() != null && !properties.getCategories().isEmpty()) {
-            predicates.and(event.category.in(catRepository.findByIdIn(properties.getCategories())));
+            predicates.and(event.category.id.in(properties.getCategories()));
         }
 
         if (properties.getPaid() != null) {

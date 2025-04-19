@@ -42,13 +42,13 @@ public class Client {
                 new ParameterizedTypeReference<List<ResponseStatDto>>() {});
     }
 
-    public ResponseEntity<ResponseStatDto> postStat(RequestStatDto body) throws UnsupportedEncodingException {
+    public void postStat(RequestStatDto body) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
 
         HttpEntity<RequestStatDto> requestEntity = new HttpEntity<>(body, headers);
 
-        return rest.exchange("/hit", HttpMethod.POST, requestEntity, ResponseStatDto.class);
+        rest.exchange("/hit", HttpMethod.POST, requestEntity, ResponseStatDto.class);
     }
 }

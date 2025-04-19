@@ -134,7 +134,7 @@ public class  EventServiceImpl implements EventsService {
     @Override
     public EventFullDto getEvent(Long id, String ip) {
         final List<List<ResponseStatDto>> stats = new ArrayList<>();
-        final List<Event> event = new ArrayList<>();
+        final List<Optional<Event>> events = new ArrayList<>();
 
         Thread clientThread = new Thread(() -> {
             RequestStatDto postStat = RequestStatDto.builder()
@@ -156,8 +156,7 @@ public class  EventServiceImpl implements EventsService {
             stats.add(client.getStats(params).getBody());
         });
 
-        Thread eventThread = new Thread(() -> event.add(repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Event with id=" + id + " was not found"))));
+        Thread eventThread = new Thread(() -> events.add(repository.findById(id)));
 
         try {
             clientThread.start();
@@ -168,11 +167,14 @@ public class  EventServiceImpl implements EventsService {
             Thread.currentThread().interrupt();
         }
 
-        if (event.getFirst().getPublishedOn() == null) {
+        Event event = events.getFirst()
+                .orElseThrow(() -> new NotFoundException("Event with id=" + id + " was not found"));
+
+        if (event.getPublishedOn() == null) {
             throw new ConditionsNotMetException("Event must be published");
         }
 
-        return mapper.mapDto(event.getFirst(),
+        return mapper.mapDto(event,
                 !stats.getFirst().isEmpty() ? stats.getFirst().getFirst().getHits() : 0L);
     }
 

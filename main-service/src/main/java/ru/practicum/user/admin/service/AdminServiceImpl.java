@@ -136,62 +136,11 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public EventFullDto patchEvent(NewEventDto dto, Long eventId) {
-        List<Event> event = new ArrayList<>();
+        List<Optional<Event>> event = new ArrayList<>();
         List<List<ResponseStatDto>> stats = new ArrayList<>();
 
         Thread mainThread = new Thread(() -> {
-            Event oldEvent = eventRepository.findById(eventId)
-                    .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
-            Event updatedEvent = Event.builder()
-                    .eventDate(dto.getEventDate() != null ? LocalDateTime.parse(dto.getEventDate(), formatter) :
-                            oldEvent.getEventDate())
-                    .build();
-
-            switch (dto.getStateAction()) {
-                case StateAction.PUBLISH_EVENT -> {
-                    if (updatedEvent.getEventDate().plusHours(1)
-                            .isBefore(LocalDateTime.now())) {
-                        throw new ConditionsNotMetException("Publish date must be after event date");
-                    }
-
-                    if (oldEvent.getState() == EventState.PENDING) {
-                        updatedEvent.setState(EventState.PUBLISHED);
-                        updatedEvent.setPublishedOn(LocalDateTime.now());
-                    } else {
-                        throw new ConditionsNotMetException("Cannot publish the event because it's not in the right state: "
-                                + oldEvent.getState());
-                    }
-                }
-
-                case StateAction.CANCEL_REVIEW -> {
-                    if (oldEvent.getState() != EventState.PUBLISHED) {
-                        updatedEvent.setState(EventState.CANCELED);
-                    } else {
-                        throw new ConditionsNotMetException("Cannot reject the event because it's not in the right state: "
-                                + oldEvent.getState());
-                    }
-                }
-            }
-
-            updatedEvent = oldEvent.toBuilder()
-                    .state(updatedEvent.getState())
-                    .publishedOn(updatedEvent.getPublishedOn())
-                    .id(eventId)
-                    .annotation(dto.getAnnotation() != null ? dto.getAnnotation() : oldEvent.getAnnotation())
-                    .category(dto.getCategory() == null ? oldEvent.getCategory() :
-                            catRepository.findById(dto.getCategory()).orElseThrow(() ->
-                                    new NotFoundException("Category with id=" + dto.getCategory() + " was not found")))
-                    .description(dto.getDescription() != null ? dto.getDescription() : oldEvent.getDescription())
-                    .eventDate(updatedEvent.getEventDate())
-                    .paid(dto.getPaid() != null ? dto.getPaid() : oldEvent.isPaid())
-                    .participantLimit(dto.getParticipantLimit() != null ? dto.getParticipantLimit() :
-                            oldEvent.getParticipantLimit())
-                    .requestModeration(dto.getRequestModeration() != null ? dto.getRequestModeration() :
-                            oldEvent.isRequestModeration())
-                    .title(dto.getTitle() != null ? dto.getTitle() : oldEvent.getTitle())
-                    .build();
-
-            event.add(updatedEvent);
+            event.add(eventRepository.findById(eventId));
         });
 
         Thread statThread = new Thread(() -> {
@@ -215,7 +164,68 @@ public class AdminServiceImpl implements AdminService {
             Thread.currentThread().interrupt();
         }
 
-        return eventMapper.mapDto(eventRepository.save(event.getFirst()),
+        Event oldEvent = event.getFirst()
+                .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
+
+        Event updatedEvent = Event.builder()
+                .eventDate(dto.getEventDate() != null ? LocalDateTime.parse(dto.getEventDate(), formatter) :
+                        oldEvent.getEventDate())
+                .build();
+
+        switch (dto.getStateAction()) {
+            case StateAction.PUBLISH_EVENT -> {
+                if (updatedEvent.getEventDate().plusHours(1)
+                        .isBefore(LocalDateTime.now())) {
+                    throw new ConditionsNotMetException("Publish date must be after event date");
+                }
+
+                if (oldEvent.getState() == EventState.PENDING) {
+                    updatedEvent.setState(EventState.PUBLISHED);
+                    updatedEvent.setPublishedOn(LocalDateTime.now());
+                } else {
+                    throw new ConflictException("Cannot publish the event because it's not in the right state: "
+                            + oldEvent.getState(), "For the requested operation the conditions are not met.");
+                }
+            }
+
+            case StateAction.CANCEL_REVIEW -> {
+                if (oldEvent.getState() != EventState.PUBLISHED) {
+                    updatedEvent.setState(EventState.CANCELED);
+                } else {
+                    throw new ConflictException("Cannot cancel the event because it's not in the right state: "
+                            + oldEvent.getState(), "For the requested operation the conditions are not met.");
+                }
+            }
+
+            case StateAction.REJECT_EVENT -> {
+                if (oldEvent.getState() != EventState.PUBLISHED) {
+                    updatedEvent.setState(EventState.REJECTED);
+                } else {
+                    throw new ConflictException("Cannot reject the event because it's not in the right state: "
+                            + oldEvent.getState(), "For the requested operation the conditions are not met.");
+                }
+            }
+        }
+
+        updatedEvent = oldEvent.toBuilder()
+                .state(updatedEvent.getState())
+                .publishedOn(updatedEvent.getPublishedOn())
+                .id(eventId)
+                .annotation(dto.getAnnotation() != null ? dto.getAnnotation() : oldEvent.getAnnotation())
+                .category(dto.getCategory() == null ? oldEvent.getCategory() :
+                        catRepository.findById(dto.getCategory()).orElseThrow(() ->
+                                new NotFoundException("Category with id=" + dto.getCategory() + " was not found")))
+                .description(dto.getDescription() != null ? dto.getDescription() : oldEvent.getDescription())
+                .eventDate(updatedEvent.getEventDate())
+                .paid(dto.getPaid() != null ? dto.getPaid() : oldEvent.isPaid())
+                .participantLimit(dto.getParticipantLimit() != null ? dto.getParticipantLimit() :
+                        oldEvent.getParticipantLimit())
+                .requestModeration(dto.getRequestModeration() != null ? dto.getRequestModeration() :
+                        oldEvent.isRequestModeration())
+                .title(dto.getTitle() != null ? dto.getTitle() : oldEvent.getTitle())
+                .build();
+
+        return eventMapper.mapDto(eventRepository.save(updatedEvent),
                 !stats.getFirst().isEmpty() ? stats.getFirst().getFirst().getHits() : 0L);
     }
 

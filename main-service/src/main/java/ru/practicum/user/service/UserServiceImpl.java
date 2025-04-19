@@ -145,7 +145,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public EventFullDto getUserEvent(Long userId, Long eventId) {
-        List<Event> events = new ArrayList<>();
+        List<Optional<Event>> events = new ArrayList<>();
         List<List<ResponseStatDto>> stats = new ArrayList<>();
 
         Map<String, Object> params = new HashMap<>();
@@ -157,8 +157,7 @@ public class UserServiceImpl implements UserService {
         params.put("uris", List.of("/events/" + eventId));
 
         Thread statThread = new Thread(() -> stats.add(client.getStats(params).getBody()));
-        Thread mainThread = new Thread(() -> events.add(eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"))));
+        Thread mainThread = new Thread(() -> events.add(eventRepository.findById(eventId)));
 
         try {
             statThread.start();
@@ -169,7 +168,10 @@ public class UserServiceImpl implements UserService {
             Thread.currentThread().interrupt();
         }
 
-        return eventMapper.mapDto(events.getFirst(),
+        Event event = events.getFirst()
+                .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
+
+        return eventMapper.mapDto(event,
                 !stats.getFirst().isEmpty() ? stats.getFirst().getFirst().getHits() : 0L);
     }
 
@@ -188,7 +190,8 @@ public class UserServiceImpl implements UserService {
         }
 
         if (oldEvent.getState() != EventState.PENDING && oldEvent.getState() != EventState.CANCELED) {
-            throw new ConditionsNotMetException("Only pending or canceled events can be changed");
+            throw new ConflictException("Only pending or canceled events can be changed",
+                    "For the requested operation the conditions are not met.");
         }
 
         Event updatedEvent = oldEvent.toBuilder()
@@ -255,12 +258,13 @@ public class UserServiceImpl implements UserService {
         List<ParticipationRequestDto> rejected = new ArrayList<>();
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
-
+        boolean overLimit = false;
 
         if (event.getParticipantLimit() > 0 && event.getParticipantLimit() - event.getConfirmRequests() < ids.size()) {
             ids = ids.stream()
                     .limit(event.getParticipantLimit() - event.getConfirmRequests())
                     .toList();
+            overLimit = true;
         }
 
         for (Long id : ids) {
@@ -283,6 +287,11 @@ public class UserServiceImpl implements UserService {
                 throw new ConditionsNotMetException("You can patch only the PENDING requests, but request with id=" +
                         id + " is " + request.getStatus());
             }
+        }
+
+        if (overLimit) {
+            throw new ConflictException("For the requested operation the conditions are not met.",
+                    "The participant limit has been reached");
         }
 
         return EventRequestStatusUpdateResult.builder()

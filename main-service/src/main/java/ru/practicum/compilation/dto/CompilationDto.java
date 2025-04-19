@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Builder;
 import lombok.Data;
-import ru.practicum.event.model.Event;
+import ru.practicum.event.dto.EventShortDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 public class CompilationDto {
     @Builder.Default
-    private List<Event> events = new ArrayList<>();
+    private List<EventShortDto> events = new ArrayList<>();
     @Positive
     private Long id;
     @NotNull

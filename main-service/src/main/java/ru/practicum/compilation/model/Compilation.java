@@ -13,7 +13,7 @@ import java.util.List;
 @Table(name = "compilations")
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 @Data
 public class Compilation {
     @Id

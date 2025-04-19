@@ -125,7 +125,7 @@ public class AdminServiceImpl implements AdminService {
         Compilation oldComp = compRepository.findById(compId)
                 .orElseThrow(() -> new NotFoundException("Compilation with id=" + compId + " was not found"));
 
-        Compilation comp = Compilation.builder()
+        Compilation comp = oldComp.toBuilder()
                 .pinned(dto.isPinned())
                 .title(dto.getTitle() != null ? dto.getTitle() : oldComp.getTitle())
                 .events(eventRepository.findByIdIn(dto.getEvents()))

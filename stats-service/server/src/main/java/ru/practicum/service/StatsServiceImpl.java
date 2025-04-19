@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.RequestStatDto;
 import ru.practicum.ResponseStatDto;
+import ru.practicum.exception.BadRequestException;
 import ru.practicum.mapper.StatsMapper;
 import ru.practicum.repository.StatsRepository;
 
@@ -26,31 +27,55 @@ public class StatsServiceImpl implements StatsService {
     @Override
     public List<ResponseStatDto> getStats(String st, String en, List<String> uris, Boolean unique) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        Comparator<ResponseStatDto> comparator = new Comparator<ResponseStatDto>() {
-            @Override
-            public int compare(ResponseStatDto o1, ResponseStatDto o2) {
-                return (int) (o1.getHits() - o2.getHits());
+        Comparator<ResponseStatDto> comparator = (o1, o2) -> {
+            if (o1.getHits() > o2.getHits()) {
+                return 3;
+            } else if (o1.getHits() < o2.getHits()) {
+                return -3;
+            } else {
+                return 0;
             }
         };
 
         LocalDateTime start = LocalDateTime.parse(st, formatter);
         LocalDateTime end = LocalDateTime.parse(en, formatter);
 
+        if (start.isAfter(end)) {
+            throw new BadRequestException("Start after end");
+        }
+
         if (uris != null && !uris.isEmpty()) {
-            return repository.getStatsByUris(start, end, uris).stream()
-                    .map(stat -> {
-                        Long hits;
-                        if (unique) {
-                            hits = repository.findUniqueHitsByUrl(stat.getUri());
-                        } else {
-                            hits = repository.findHitsByUrl(stat.getUri());
-                        }
-                        return mapper.mapDto(stat, hits);
-                    })
-                    .distinct()
-                    .sorted(comparator)
-                    .toList()
-                    .reversed();
+            if (uris.getFirst().split("/").length == 2) {
+                return repository.getStatsByUris(start, end, uris.getFirst()).stream()
+                        .map(stat -> {
+                            Long hits;
+                            if (unique) {
+                                hits = repository.findUniqueHitsByUrl(stat.getUri());
+                            } else {
+                                hits = repository.findHitsByUrl(stat.getUri());
+                            }
+                            return mapper.mapDto(stat, hits);
+                        })
+                        .distinct()
+                        .sorted(comparator)
+                        .toList()
+                        .reversed();
+            } else {
+                return repository.getStatsByUris(start, end, uris).stream()
+                        .map(stat -> {
+                            Long hits;
+                            if (unique) {
+                                hits = repository.findUniqueHitsByUrl(stat.getUri());
+                            } else {
+                                hits = repository.findHitsByUrl(stat.getUri());
+                            }
+                            return mapper.mapDto(stat, hits);
+                        })
+                        .distinct()
+                        .sorted(comparator)
+                        .toList()
+                        .reversed();
+            }
         } else {
             return repository.getStats(start, end).stream()
                     .map(stat -> {

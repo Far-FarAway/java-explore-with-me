@@ -29,6 +29,12 @@ public interface StatsRepository extends JpaRepository<Stat, Long> {
 
     @Query("SELECT s " +
             "FROM Stat s " +
+            "WHERE (s.timestamp BETWEEN ?1 AND ?2) " +
+            "AND s.uri LIKE CONCAT(?3, '%')")
+    public List<Stat> getStatsByUris(LocalDateTime start, LocalDateTime end, String uris);
+
+    @Query("SELECT s " +
+            "FROM Stat s " +
             "WHERE s.timestamp BETWEEN ?1 AND ?2")
     public List<Stat> getStats(LocalDateTime start, LocalDateTime end);
 }

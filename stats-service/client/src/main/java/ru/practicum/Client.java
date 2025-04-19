@@ -32,6 +32,7 @@ public class Client {
                 .queryParam("start", params.get("start"))
                 .queryParam("end", params.get("end"))
                 .queryParam("uris", params.get("uris"))
+                .queryParam("unique", params.get("unique"))
                 .build()
                 .toUriString();
 

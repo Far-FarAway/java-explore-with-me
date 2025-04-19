@@ -155,6 +155,7 @@ public class  EventServiceImpl implements EventsService {
                     .of(2000, 1, 1, 0, 0).format(formatter));
             params.put("end", LocalDateTime.now().format(formatter));
             params.put("uris", "/events/" + id);
+            params.put("unique", "true");
 
             stats.add(client.getStats(params).getBody());
         });

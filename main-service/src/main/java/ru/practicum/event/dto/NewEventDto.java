@@ -30,7 +30,7 @@ public class NewEventDto {
     @NotNull(groups = OnCreate.class)
     Location location;
     @NotNull(groups = OnCreate.class)
-    boolean paid;
+    Boolean paid;
     @PositiveOrZero
     @Builder.Default
     Integer participantLimit = 0;

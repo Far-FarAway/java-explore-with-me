@@ -163,7 +163,7 @@ public class AdminServiceImpl implements AdminService {
                     }
                 }
 
-                case StateAction.REJECT_EVENT -> {
+                case StateAction.CANCEL_REVIEW -> {
                     if (oldEvent.getState() != EventState.PUBLISHED) {
                         updatedEvent.setState(EventState.CANCELED);
                     } else {
@@ -183,7 +183,7 @@ public class AdminServiceImpl implements AdminService {
                                     new NotFoundException("Category with id=" + dto.getCategory() + " was not found")))
                     .description(dto.getDescription() != null ? dto.getDescription() : oldEvent.getDescription())
                     .eventDate(updatedEvent.getEventDate())
-                    .paid(dto.isPaid())
+                    .paid(dto.getPaid() != null ? dto.getPaid() : oldEvent.isPaid())
                     .participantLimit(dto.getParticipantLimit() != null ? dto.getParticipantLimit() :
                             oldEvent.getParticipantLimit())
                     .requestModeration(dto.getRequestModeration() != null ? dto.getRequestModeration() :

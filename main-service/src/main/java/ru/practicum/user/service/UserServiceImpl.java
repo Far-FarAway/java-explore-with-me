@@ -13,6 +13,7 @@ import ru.practicum.event.dto.NewEventDto;
 import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.EventState;
+import ru.practicum.event.model.StateAction;
 import ru.practicum.event.repository.EventRepository;
 import ru.practicum.exception.ConditionsNotMetException;
 import ru.practicum.exception.ConflictException;
@@ -79,7 +80,7 @@ public class UserServiceImpl implements UserService {
         ParticipationRequest request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException("Request with id=" + requestId + " was not found"));
 
-        request.setStatus(RequestStatus.REJECTED);
+        request.setStatus(RequestStatus.CANCELED);
         eventRepository.decreaseConfirmRequests(request.getEventId());
 
         return requestMapper.mapDto(requestRepository.save(request));
@@ -190,7 +191,7 @@ public class UserServiceImpl implements UserService {
             throw new ConditionsNotMetException("Only pending or canceled events can be changed");
         }
 
-        Event updatedEvent = Event.builder()
+        Event updatedEvent = oldEvent.toBuilder()
                 .id(eventId)
                 .annotation(dto.getAnnotation() != null ? dto.getAnnotation() : oldEvent.getAnnotation())
                 .category(dto.getCategory() != null ? catRepository.findById(dto.getCategory()).orElseThrow(() ->
@@ -199,7 +200,7 @@ public class UserServiceImpl implements UserService {
                 .description(dto.getDescription() != null ? dto.getDescription() : oldEvent.getDescription())
                 .eventDate(newEventDate != null ? newEventDate : oldEvent.getEventDate())
                 .location(dto.getLocation() != null ? dto.getLocation() : oldEvent.getLocation())
-                .paid(dto.isPaid())
+                .paid(dto.getPaid() != null ? dto.getPaid() : oldEvent.isPaid())
                 .participantLimit(dto.getParticipantLimit() != null ? dto.getParticipantLimit() :
                         oldEvent.getParticipantLimit())
                 .requestModeration(dto.getRequestModeration() != null ? dto.getRequestModeration() :
@@ -207,7 +208,11 @@ public class UserServiceImpl implements UserService {
                 .title(dto.getTitle() != null ? dto.getTitle() : oldEvent.getTitle())
                 .build();
 
-
+        if (dto.getStateAction() == StateAction.PUBLISH_EVENT) {
+            updatedEvent.setState(EventState.PUBLISHED);
+        } else if (dto.getStateAction() == StateAction.CANCEL_REVIEW) {
+            updatedEvent.setState(EventState.CANCELED);
+        }
 
         Thread statThread = new Thread(() -> {
             Map<String, Object> params = new HashMap<>();

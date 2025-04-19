@@ -1,6 +1,7 @@
 package ru.practicum.exception;
 
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -59,6 +60,14 @@ public class ErrorHandler {
     public ErrorResponse handleForbiddenException(ConditionsNotMetException ex) {
         return new ErrorResponse(HttpStatus.FORBIDDEN.name(),
                 "For the requested operation the conditions are not met.", ex.getMessage(),
+                LocalDateTime.now().format(formatter));
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handlePSQLException(DataIntegrityViolationException ex) {
+        return new ErrorResponse(HttpStatus.FORBIDDEN.name(),
+                "Integrity constraint has been violated.", ex.getMessage(),
                 LocalDateTime.now().format(formatter));
     }
 

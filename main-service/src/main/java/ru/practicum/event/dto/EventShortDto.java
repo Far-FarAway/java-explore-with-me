@@ -22,7 +22,7 @@ public class EventShortDto {
     @NotNull(groups = OnCreate.class)
     CategoryDto category;
     @PositiveOrZero
-    int confirmRequests;
+    int confirmedRequests;
     @NotBlank(groups = OnCreate.class)
     @NotNull(groups = OnCreate.class)
     String eventDate;

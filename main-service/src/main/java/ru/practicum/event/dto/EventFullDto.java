@@ -24,7 +24,7 @@ public class EventFullDto {
     @NotNull(groups = OnCreate.class)
     CategoryDto category;
     @PositiveOrZero
-    int confirmRequests;
+    int confirmedRequests;
     String createdOn;
     String description;
     @NotBlank(groups = OnCreate.class)

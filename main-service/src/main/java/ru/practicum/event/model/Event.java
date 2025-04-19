@@ -28,6 +28,7 @@ public class Event {
     @Column(length = 1000)
     String description;
     @ManyToOne
+    @JoinColumn(name = "category_id")
     Category category;
     @Column(name = "created_on")
     @Builder.Default

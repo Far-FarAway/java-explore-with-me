@@ -1,6 +1,8 @@
 package ru.practicum.compilation.mapper;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Component;
 import ru.practicum.Client;
 import ru.practicum.compilation.dto.CompilationDto;
@@ -19,10 +21,11 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CompilationMapper {
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private final EventMapper eventMapper;
-    private final Client client;
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    EventMapper eventMapper;
+    Client client;
 
     public Compilation toEntity(RequestCompilationDto dto, List<Event> events) {
         return Compilation.builder()

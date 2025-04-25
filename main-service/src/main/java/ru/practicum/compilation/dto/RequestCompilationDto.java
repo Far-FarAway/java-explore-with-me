@@ -2,8 +2,10 @@ package ru.practicum.compilation.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 import org.hibernate.validator.constraints.Length;
 import ru.practicum.marker.OnCreate;
 import ru.practicum.marker.OnUpdate;
@@ -12,13 +14,14 @@ import java.util.List;
 
 @Builder
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class RequestCompilationDto {
-    private List<Long> events;
+    List<Long> events;
     @NotNull(groups = OnCreate.class)
-    private boolean pinned;
+    boolean pinned;
     @NotNull(groups = OnCreate.class)
     @NotBlank(groups = OnCreate.class)
     @Length(groups = {OnCreate.class, OnUpdate.class},
             max = 50)
-    private String title;
+    String title;
 }

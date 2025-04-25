@@ -1,5 +1,7 @@
 package ru.practicum.user.mapper;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Component;
 import ru.practicum.user.dto.request.ParticipationRequestDto;
 import ru.practicum.user.model.ParticipationRequest;
@@ -8,8 +10,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Component
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class RequestMapper {
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public ParticipationRequestDto mapDto(ParticipationRequest request) {
         return ParticipationRequestDto.builder()

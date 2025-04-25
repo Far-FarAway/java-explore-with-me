@@ -1,10 +1,8 @@
 package ru.practicum.compilation.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import ru.practicum.event.model.Event;
 
 import java.util.List;
@@ -15,18 +13,19 @@ import java.util.List;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Compilation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "compilation_id")
-    private Long id;
+    Long id;
     @Column
-    private boolean pinned;
+    boolean pinned;
     @Column(length = 50, nullable = false)
-    private String title;
+    String title;
     @ManyToMany
     @JoinTable(name = "compilations_events",
                 joinColumns = @JoinColumn(name = "compilation_id"),
                 inverseJoinColumns = @JoinColumn(name = "event_id"))
-    private List<Event> events;
+    List<Event> events;
 }

@@ -1,6 +1,8 @@
 package ru.practicum.compilation.service;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import ru.practicum.compilation.dto.CompilationDto;
 import ru.practicum.compilation.mapper.CompilationMapper;
@@ -12,9 +14,10 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CompilationServiceImpl implements CompilationService {
-    private final CompilationRepository repository;
-    private final CompilationMapper mapper;
+    CompilationRepository repository;
+    CompilationMapper mapper;
 
     @Override
     public List<CompilationDto> getCompilations(Boolean pinned, int from, int size) {

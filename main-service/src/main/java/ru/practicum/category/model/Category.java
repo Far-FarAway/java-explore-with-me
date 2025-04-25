@@ -1,10 +1,8 @@
 package ru.practicum.category.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.util.Objects;
 
@@ -14,13 +12,14 @@ import java.util.Objects;
 @AllArgsConstructor
 @Builder
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "category_id")
-    private Long id;
+    Long id;
     @Column(unique = true, length = 50, nullable = false)
-    private String name;
+    String name;
 
     @Override
     public boolean equals(Object o) {

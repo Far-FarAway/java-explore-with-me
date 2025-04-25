@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import ru.practicum.Client;
 import ru.practicum.RequestStatDto;
 import ru.practicum.ResponseStatDto;
-import ru.practicum.category.repository.CategoryRepository;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.mapper.EventMapper;

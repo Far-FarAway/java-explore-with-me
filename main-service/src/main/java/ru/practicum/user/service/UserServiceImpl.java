@@ -3,6 +3,8 @@ package ru.practicum.user.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.Client;
 import ru.practicum.ResponseStatDto;
@@ -90,9 +92,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<EventShortDto> getUserEvents(Long userId, int from, int size) {
-        List<Event> events = eventRepository.findByInitiator_Id(userId).stream()
-                .skip(from)
-                .limit(size)
+        int page = from / size;
+        Pageable pageable = PageRequest.of(page, size);
+        List<Event> events = eventRepository.findByInitiator_Id(userId, pageable).stream()
                 .toList();
 
         Map<String, Object> params = new HashMap<>();

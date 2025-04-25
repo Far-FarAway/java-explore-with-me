@@ -1,5 +1,7 @@
 package ru.practicum.event.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -28,5 +30,5 @@ public interface EventRepository extends JpaRepository<Event, Long>, QuerydslPre
             "WHERE e.id = ?1")
     void decreaseConfirmRequests(Long eventId);
 
-    List<Event> findByInitiator_Id(Long userId);
+    Page<Event> findByInitiator_Id(Long userId, Pageable pageable);
 }

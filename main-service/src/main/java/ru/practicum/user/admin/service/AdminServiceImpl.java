@@ -4,6 +4,8 @@ import com.querydsl.core.BooleanBuilder;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.Client;
 import ru.practicum.ResponseStatDto;
@@ -59,17 +61,15 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public List<UserDto> getUsers(List<Long> ids, int from, int size) {
+        int page = from / size;
+        Pageable pageable = PageRequest.of(page, size);
         if (ids != null && !ids.isEmpty()) {
-            return repository.findByIdIn(ids).stream()
+            return repository.findByIdIn(ids, pageable).stream()
                     .map(mapper::mapDto)
-                    .skip(from)
-                    .limit(size)
                     .toList();
         } else {
-            return repository.findAll().stream()
+            return repository.findAll(pageable).stream()
                     .map(mapper::mapDto)
-                    .skip(from)
-                    .limit(size)
                     .toList();
         }
     }
@@ -256,8 +256,11 @@ public class AdminServiceImpl implements AdminService {
         List<Stream<Event>> eventStream = new ArrayList<>();
         List<List<ResponseStatDto>> statsList = new ArrayList<>();
 
-        Thread mainThread = new Thread(() ->
-                eventStream.add(StreamSupport.stream(eventRepository.findAll(predicates).spliterator(), false)));
+        Thread mainThread = new Thread(() -> {
+            int page = properties.getFrom() / properties.getSize();
+            Pageable pageable = PageRequest.of(page, properties.getSize());
+            eventStream.add(StreamSupport.stream(eventRepository.findAll(predicates).spliterator(), false));
+        });
 
         Thread statThread = new Thread(() -> statsList.add(client.getStats(params).getBody()));
 

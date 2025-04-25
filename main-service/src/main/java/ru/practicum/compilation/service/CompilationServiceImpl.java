@@ -3,6 +3,9 @@ package ru.practicum.compilation.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.compilation.dto.CompilationDto;
 import ru.practicum.compilation.mapper.CompilationMapper;
@@ -21,17 +24,17 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public List<CompilationDto> getCompilations(Boolean pinned, int from, int size) {
-        List<Compilation> results;
+        Page<Compilation> results;
+        int page = from / size;
+        Pageable pageable = PageRequest.of(page, size);
 
         if (pinned != null) {
-            results = repository.findByPinned(pinned);
+            results = repository.findByPinned(pinned, pageable);
         } else {
-            results = repository.findAll();
+            results = repository.findAll(pageable);
         }
 
         return results.stream()
-                .skip(from)
-                .limit(size)
                 .map(mapper::mapDto)
                 .toList();
     }

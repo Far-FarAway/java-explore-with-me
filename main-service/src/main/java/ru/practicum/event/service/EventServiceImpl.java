@@ -4,6 +4,8 @@ import com.querydsl.core.BooleanBuilder;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.Client;
 import ru.practicum.RequestStatDto;
@@ -11,10 +13,7 @@ import ru.practicum.ResponseStatDto;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.mapper.EventMapper;
-import ru.practicum.event.model.Event;
-import ru.practicum.event.model.EventState;
-import ru.practicum.event.model.QEvent;
-import ru.practicum.event.model.SortType;
+import ru.practicum.event.model.*;
 import ru.practicum.event.repository.EventRepository;
 import ru.practicum.exception.BadRequestException;
 import ru.practicum.exception.NotFoundException;
@@ -40,18 +39,7 @@ public class  EventServiceImpl implements EventsService {
     @Override
     public List<EventShortDto> getEvents(SearchProperties properties, String ip) {
         Comparator<EventShortDto> viewsComparator = (o1, o2) -> o1.getViews().compareTo(o2.getViews());
-        Comparator<EventShortDto> dateComparator = (o1, o2) -> {
-            LocalDateTime date1 = LocalDateTime.parse(o1.getEventDate(), formatter);
-            LocalDateTime date2 = LocalDateTime.parse(o2.getEventDate(), formatter);
-
-            if (date1.isAfter(date2)) {
-                return 3;
-            } else if (date1.isBefore(date2)) {
-                return -3;
-            } else {
-                return 0;
-            }
-        };
+        DateComparator dateComparator = new DateComparator();
 
         if (properties.getRangeStart() != null && !properties.getRangeStart().isEmpty() &&
                 properties.getRangeEnd() != null && !properties.getRangeEnd().isEmpty()) {
@@ -72,8 +60,11 @@ public class  EventServiceImpl implements EventsService {
 
         Thread clientThread = new Thread(() -> statsList.add(client.getStats(params).getBody()));
 
-        Thread eventThread = new Thread(() ->
-                eventStream.add(StreamSupport.stream(repository.findAll(predicates).spliterator(), false)));
+        Thread eventThread = new Thread(() -> {
+            int page = properties.getFrom() / properties.getSize();
+            Pageable pageable = PageRequest.of(page, properties.getSize());
+            eventStream.add(StreamSupport.stream(repository.findAll(predicates, pageable).spliterator(), false));
+        });
 
         try {
             clientThread.start();
@@ -126,10 +117,9 @@ public class  EventServiceImpl implements EventsService {
             }
         }
 
-        return events.stream()
-                .skip(properties.getFrom())
-                .limit(properties.getSize())
-                .toList();
+
+
+        return events;
     }
 
     @Override

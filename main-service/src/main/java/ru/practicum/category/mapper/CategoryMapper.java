@@ -7,13 +7,13 @@ import ru.practicum.category.model.Category;
 
 @Component
 public class CategoryMapper {
-    public Category mapPOJO(CategoryDto dto) {
+    public Category toEntity(CategoryDto dto) {
         return  Category.builder()
                 .name(dto.getName())
                 .build();
     }
 
-    public Category mapPOJO(NewCategoryDto dto) {
+    public Category toEntity(NewCategoryDto dto) {
         return  Category.builder()
                 .name(dto.getName())
                 .build();

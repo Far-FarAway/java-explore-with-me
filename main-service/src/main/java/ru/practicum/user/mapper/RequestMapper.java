@@ -21,7 +21,7 @@ public class RequestMapper {
                 .build();
     }
 
-    public ParticipationRequest mapPOJO(ParticipationRequestDto dto) {
+    public ParticipationRequest toEntity(ParticipationRequestDto dto) {
         return ParticipationRequest.builder()
                 .created(LocalDateTime.parse(dto.getCreated(), formatter))
                 .id(dto.getId())

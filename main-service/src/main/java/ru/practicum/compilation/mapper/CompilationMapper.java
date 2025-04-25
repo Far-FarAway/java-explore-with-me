@@ -24,7 +24,7 @@ public class CompilationMapper {
     private final EventMapper eventMapper;
     private final Client client;
 
-    public Compilation mapPOJO(RequestCompilationDto dto, List<Event> events) {
+    public Compilation toEntity(RequestCompilationDto dto, List<Event> events) {
         return Compilation.builder()
                 .title(dto.getTitle())
                 .pinned(dto.isPinned())

@@ -59,7 +59,7 @@ public class EventMapper {
                 .build();
     }
 
-    public Event mapPOJO(NewEventDto dto) {
+    public Event toEntity(NewEventDto dto) {
         return Event.builder()
                 .annotation(dto.getAnnotation())
                 .category(categoryRepository.findById(dto.getCategory()).orElseThrow(() ->

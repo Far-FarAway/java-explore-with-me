@@ -136,7 +136,7 @@ public class UserServiceImpl implements UserService {
                     "которая еще не наступила. Value: " + dto.getEventDate());
         }
 
-        Event event = eventMapper.mapPOJO(dto);
+        Event event = eventMapper.toEntity(dto);
         event.setInitiator(userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User with id=" + userId + " was not found")));
         event.setState(EventState.PENDING);

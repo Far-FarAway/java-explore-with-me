@@ -8,7 +8,7 @@ import ru.practicum.user.model.User;
 
 @Component
 public class UserMapper {
-    public User mapPOJO(NewUserRequest dto) {
+    public User toEntity(NewUserRequest dto) {
         return User.builder()
                 .name(dto.getName())
                 .email(dto.getEmail())

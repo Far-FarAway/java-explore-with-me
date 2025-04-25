@@ -76,7 +76,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public UserDto postUser(NewUserRequest user) {
-        return mapper.mapDto(repository.save(mapper.mapPOJO(user)));
+        return mapper.mapDto(repository.save(mapper.toEntity(user)));
     }
 
     @Override
@@ -90,7 +90,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public CategoryDto postCategory(NewCategoryDto dto) {
-        return catMapper.mapDto(catRepository.save(catMapper.mapPOJO(dto)));
+        return catMapper.mapDto(catRepository.save(catMapper.toEntity(dto)));
     }
 
     @Override
@@ -121,7 +121,7 @@ public class AdminServiceImpl implements AdminService {
     public CompilationDto postCompilation(RequestCompilationDto dto) {
         List<Event> events = eventRepository.findByIdIn(dto.getEvents());
 
-        return compMapper.mapDto(compRepository.save(compMapper.mapPOJO(dto, events)));
+        return compMapper.mapDto(compRepository.save(compMapper.toEntity(dto, events)));
     }
 
     @Override

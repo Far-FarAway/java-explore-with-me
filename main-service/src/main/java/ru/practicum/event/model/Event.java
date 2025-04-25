@@ -23,19 +23,19 @@ public class Event {
     Long id;
     @Column(length = 2000)
     String annotation;
-    @Column(length = 120)
+    @Column(length = 120, nullable = false)
     String title;
-    @Column(length = 7000)
+    @Column(length = 7000, nullable = false)
     String description;
     @ManyToOne
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", nullable = false)
     Category category;
-    @Column(name = "created_on")
+    @Column(name = "created_on", nullable = false)
     @Builder.Default
     LocalDateTime createdOn = LocalDateTime.now();
     @Column(name = "published_on")
     LocalDateTime publishedOn;
-    @Column(name = "event_date")
+    @Column(name = "event_date", nullable = false)
     LocalDateTime eventDate;
     @ManyToOne
     @JoinColumn(name = "user_id")

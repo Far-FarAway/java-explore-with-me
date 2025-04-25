@@ -79,5 +79,12 @@ public class ErrorHandler {
                 LocalDateTime.now().format(formatter));
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleInternalServerException(InternalServerException ex) {
+        return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.name(), "The server failed", ex.getMessage(),
+                LocalDateTime.now().format(formatter));
+    }
+
     public record ErrorResponse(String status, String reason, String message, String timestamp) {}
 }

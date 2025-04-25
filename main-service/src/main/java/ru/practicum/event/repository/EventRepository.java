@@ -10,7 +10,7 @@ import ru.practicum.event.model.Event;
 import java.util.List;
 
 public interface EventRepository extends JpaRepository<Event, Long>, QuerydslPredicateExecutor<Event> {
-    boolean existsByCategory_Id(Long catId);
+    boolean existsByCategory_Id(Long categoryId);
 
     List<Event> findByIdIn(List<Long> events);
 

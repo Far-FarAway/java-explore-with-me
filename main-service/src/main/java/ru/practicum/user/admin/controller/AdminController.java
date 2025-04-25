@@ -56,13 +56,13 @@ public class AdminController {
 
     @DeleteMapping("/categories/{catId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteCategory(@PathVariable Long catId) {
-        service.deleteCategory(catId);
+    public void deleteCategory(@PathVariable(name = "catId") Long categoryId) {
+        service.deleteCategory(categoryId);
     }
 
     @PatchMapping("/categories/{catId}")
-    public CategoryDto patchCategory(@Validated(OnUpdate.class) @RequestBody NewCategoryDto dto, @PathVariable Long catId) {
-        return service.patchCategory(dto, catId);
+    public CategoryDto patchCategory(@Validated(OnUpdate.class) @RequestBody NewCategoryDto dto, @PathVariable(name = "catId") Long categoryId) {
+        return service.patchCategory(dto, categoryId);
     }
 
     @PostMapping("/compilations")
@@ -73,14 +73,14 @@ public class AdminController {
 
     @DeleteMapping("/compilations/{compId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteCompilation(@PathVariable Long compId) {
-        service.deleteCompilation(compId);
+    public void deleteCompilation(@PathVariable(name = "compId") Long compilationId) {
+        service.deleteCompilation(compilationId);
     }
 
     @PatchMapping("/compilations/{compId}")
     public CompilationDto patchCompilation(@Validated(OnUpdate.class) @RequestBody RequestCompilationDto dto,
-                                           @PathVariable Long compId) {
-        return service.patchCompilation(dto, compId);
+                                           @PathVariable(name = "compId") Long compilationId) {
+        return service.patchCompilation(dto, compilationId);
     }
 
     @PatchMapping("/events/{eventId}")

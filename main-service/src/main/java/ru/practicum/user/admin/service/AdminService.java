@@ -21,15 +21,15 @@ public interface AdminService {
 
     CategoryDto postCategory(NewCategoryDto dto);
 
-    void deleteCategory(Long catId);
+    void deleteCategory(Long categoryId);
 
-    CategoryDto patchCategory(NewCategoryDto dto, Long catId);
+    CategoryDto patchCategory(NewCategoryDto dto, Long categoryId);
 
     CompilationDto postCompilation(RequestCompilationDto dto);
 
-    void deleteCompilation(Long compId);
+    void deleteCompilation(Long compilationId);
 
-    CompilationDto patchCompilation(RequestCompilationDto dto, Long compId);
+    CompilationDto patchCompilation(RequestCompilationDto dto, Long compilationId);
 
     EventFullDto patchEvent(NewEventDto dto, Long eventId);
 

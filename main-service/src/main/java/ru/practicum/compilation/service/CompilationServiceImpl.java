@@ -34,9 +34,9 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
-    public CompilationDto getCompilation(Long compId) {
-        Compilation comp = repository.findById(compId)
-                .orElseThrow(() -> new NotFoundException("Compilation with id=" + compId + " was not found"));
+    public CompilationDto getCompilation(Long compilationId) {
+        Compilation comp = repository.findById(compilationId)
+                .orElseThrow(() -> new NotFoundException("Compilation with id=" + compilationId + " was not found"));
 
         return mapper.mapDto(comp);
     }

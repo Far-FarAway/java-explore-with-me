@@ -94,27 +94,27 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void deleteCategory(Long catId) {
-        if (!catRepository.existsById(catId)) {
-            throw new NotFoundException("Category with id=" + catId + " was not found");
+    public void deleteCategory(Long categoryId) {
+        if (!catRepository.existsById(categoryId)) {
+            throw new NotFoundException("Category with id=" + categoryId + " was not found");
         }
 
-        if (eventRepository.existsByCategory_Id(catId)) {
+        if (eventRepository.existsByCategory_Id(categoryId)) {
             throw new ConflictException("The category is not empty",
                     "For the requested operation the conditions are not met.");
         }
 
-        catRepository.deleteById(catId);
+        catRepository.deleteById(categoryId);
     }
 
     @Override
-    public CategoryDto patchCategory(NewCategoryDto dto, Long catId) {
-        Category cat = catRepository.findById(catId)
-                .orElseThrow(() ->  new NotFoundException("Category with id=" + catId + " was not found"));
+    public CategoryDto patchCategory(NewCategoryDto dto, Long categoryId) {
+        Category category = catRepository.findById(categoryId)
+                .orElseThrow(() ->  new NotFoundException("Category with id=" + categoryId + " was not found"));
 
-        cat.setName(dto.getName());
+        category.setName(dto.getName());
 
-        return catMapper.mapDto(catRepository.save(cat));
+        return catMapper.mapDto(catRepository.save(category));
     }
 
     @Override
@@ -125,14 +125,14 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void deleteCompilation(Long compId) {
-        compRepository.deleteById(compId);
+    public void deleteCompilation(Long compilationId) {
+        compRepository.deleteById(compilationId);
     }
 
     @Override
-    public CompilationDto patchCompilation(RequestCompilationDto dto, Long compId) {
-        Compilation oldComp = compRepository.findById(compId)
-                .orElseThrow(() -> new NotFoundException("Compilation with id=" + compId + " was not found"));
+    public CompilationDto patchCompilation(RequestCompilationDto dto, Long compilationId) {
+        Compilation oldComp = compRepository.findById(compilationId)
+                .orElseThrow(() -> new NotFoundException("Compilation with id=" + compilationId + " was not found"));
 
         Compilation comp = oldComp.toBuilder()
                 .pinned(dto.isPinned())

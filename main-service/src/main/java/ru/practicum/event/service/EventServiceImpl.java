@@ -34,7 +34,6 @@ import java.util.stream.StreamSupport;
 public class  EventServiceImpl implements EventsService {
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     EventRepository repository;
-    CategoryRepository catRepository;
     AdminRepository adminRepository;
     EventMapper mapper;
     Client client;

@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.comment.dto.CommentDto;
+import ru.practicum.comment.dto.NewCommentDto;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.dto.NewEventDto;
@@ -79,5 +81,24 @@ public class UserController {
     public EventRequestStatusUpdateResult getUserEventRequests(@PathVariable Long userId, @PathVariable Long eventId,
                                                                @RequestBody EventRequestStatusUpdateRequest dto) {
         return service.patchUserEventRequests(userId, eventId, dto);
+    }
+
+    @PostMapping("/{userId}/comments")
+    @ResponseStatus(HttpStatus.CREATED)
+    public CommentDto postComment(@Validated @RequestBody NewCommentDto dto,
+                                  @PathVariable Long userId) {
+        return service.postComment(dto, userId);
+    }
+
+    @PatchMapping("/{userId}/comments/{comId}")
+    public CommentDto patchComment(@Validated @RequestBody NewCommentDto dto,
+                                   @PathVariable(name = "comId") Long commentId,
+                                   @PathVariable Long userId) {
+        return service.patchComment(dto, commentId, userId);
+    }
+
+    @DeleteMapping("/{userId}/comments/{comId}")
+    public void deleteComment(@PathVariable(name = "comId") Long commentId, @PathVariable Long userId) {
+        service.deleteComment(commentId, userId);
     }
 }

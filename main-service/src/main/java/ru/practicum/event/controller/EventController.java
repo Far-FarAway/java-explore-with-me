@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.comment.dto.CommentDto;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.service.EventsService;
@@ -51,5 +52,10 @@ public class EventController {
     @GetMapping("/{id}")
     public EventFullDto getEvent(@PathVariable Long id, HttpServletRequest request) {
         return service.getEvent(id, request.getRemoteAddr());
+    }
+
+    @GetMapping("/{id}/comments")
+    public List<CommentDto> getComments(@PathVariable Long id) {
+        return service.getComments(id);
     }
 }

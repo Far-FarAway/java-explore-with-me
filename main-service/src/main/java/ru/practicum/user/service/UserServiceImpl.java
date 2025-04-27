@@ -9,6 +9,11 @@ import org.springframework.stereotype.Service;
 import ru.practicum.Client;
 import ru.practicum.ResponseStatDto;
 import ru.practicum.category.repository.CategoryRepository;
+import ru.practicum.comment.dto.CommentDto;
+import ru.practicum.comment.dto.NewCommentDto;
+import ru.practicum.comment.mapper.CommentMapper;
+import ru.practicum.comment.model.Comment;
+import ru.practicum.comment.repository.CommentRepository;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.dto.NewEventDto;
@@ -42,8 +47,10 @@ public class UserServiceImpl implements UserService {
     EventRepository eventRepository;
     CategoryRepository catRepository;
     UserRepository userRepository;
+    CommentRepository commentRepository;
     RequestMapper requestMapper;
     EventMapper eventMapper;
+    CommentMapper commentMapper;
     Client client;
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -304,6 +311,50 @@ public class UserServiceImpl implements UserService {
                 .confirmedRequests(confirmed)
                 .rejectedRequests(rejected)
                 .build();
+    }
+
+    @Override
+    public CommentDto postComment(NewCommentDto dto, Long userId) {
+        dto.setUserId(userId);
+
+        Comment newComment = commentMapper.toEntity(dto);
+
+        return commentMapper.mapDto(commentRepository.save(newComment));
+    }
+
+    @Override
+    public CommentDto patchComment(NewCommentDto dto, Long commentId, Long userId) {
+        Optional<Comment> oldComment = commentRepository.findById(commentId);
+
+        if (oldComment.isEmpty()) {
+            throw new NotFoundException("Comment with id=" + commentId + "was not found");
+        } else {
+            if (!Objects.equals(oldComment.get().getUser().getId(), userId)) {
+                throw new ConflictException("Access error", "Only comment owner can patch comment, userId=" + userId);
+            }
+        }
+
+        dto.setUserId(userId);
+
+        Comment updatedComment = commentMapper.toEntity(dto);
+        updatedComment.setId(commentId);
+
+        return commentMapper.mapDto(commentRepository.save(updatedComment));
+    }
+
+    @Override
+    public void deleteComment(Long commentId, Long userId) {
+        Optional<Comment> oldComment = commentRepository.findById(commentId);
+
+        if (oldComment.isEmpty()) {
+            throw new NotFoundException("Comment with id=" + commentId + "was not found");
+        } else {
+            if (!Objects.equals(oldComment.get().getUser().getId(), userId)) {
+                throw new ConflictException("Access error", "Only comment owner can patch comment, userId=" + userId);
+            }
+        }
+
+        commentRepository.deleteById(commentId);
     }
 
     private void valid(Event event, Long eventId, Long userId) {

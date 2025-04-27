@@ -14,6 +14,11 @@ import ru.practicum.category.dto.NewCategoryDto;
 import ru.practicum.category.mapper.CategoryMapper;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
+import ru.practicum.comment.dto.CommentDto;
+import ru.practicum.comment.dto.NewCommentDto;
+import ru.practicum.comment.mapper.CommentMapper;
+import ru.practicum.comment.model.Comment;
+import ru.practicum.comment.repository.CommentRepository;
 import ru.practicum.compilation.dto.CompilationDto;
 import ru.practicum.compilation.dto.RequestCompilationDto;
 import ru.practicum.compilation.mapper.CompilationMapper;
@@ -51,10 +56,12 @@ public class AdminServiceImpl implements AdminService {
     CategoryRepository catRepository;
     EventRepository eventRepository;
     CompilationRepository compRepository;
+    CommentRepository commentRepository;
     UserMapper mapper;
     CategoryMapper catMapper;
     CompilationMapper compMapper;
     EventMapper eventMapper;
+    CommentMapper commentMapper;
     EventsService eventsService;
     Client client;
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -293,5 +300,26 @@ public class AdminServiceImpl implements AdminService {
                 .skip(properties.getFrom())
                 .limit(properties.getSize())
                 .toList();
+    }
+
+    @Override
+    public CommentDto patchComment(NewCommentDto dto, Long commentId) {
+        if (!commentRepository.existsById(commentId)) {
+            throw new NotFoundException("Comment with id=" + commentId + "was not found");
+        }
+
+        Comment updatedComment = commentMapper.toEntity(dto);
+        updatedComment.setId(commentId);
+
+        return commentMapper.mapDto(commentRepository.save(updatedComment));
+    }
+
+    @Override
+    public void deleteComment(Long commentId) {
+        if (!commentRepository.existsById(commentId)) {
+            throw new NotFoundException("Comment with id=" + commentId + "was not found");
+        }
+
+        commentRepository.deleteById(commentId);
     }
 }

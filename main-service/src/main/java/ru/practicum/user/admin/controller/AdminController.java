@@ -115,14 +115,14 @@ public class AdminController {
         return service.getEvents(properties);
     }
 
-    @PatchMapping("comments/{comId}")
+    @PatchMapping("comments/{commentId}")
     public CommentDto patchComment(@Validated @RequestBody NewCommentDto dto,
-                                   @PathVariable(name = "comId") Long commentId) {
+                                   @PathVariable Long commentId) {
         return service.patchComment(dto, commentId);
     }
 
-    @DeleteMapping("comments/{comId}")
-    public void deleteComment(@PathVariable(name = "comId") Long commentId) {
+    @DeleteMapping("comments/{commentId}")
+    public void deleteComment(@PathVariable Long commentId) {
         service.deleteComment(commentId);
     }
 }

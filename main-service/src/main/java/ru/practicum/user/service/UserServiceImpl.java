@@ -32,6 +32,7 @@ import ru.practicum.user.dto.request.ParticipationRequestDto;
 import ru.practicum.user.mapper.RequestMapper;
 import ru.practicum.user.model.ParticipationRequest;
 import ru.practicum.user.model.RequestStatus;
+import ru.practicum.user.model.User;
 import ru.practicum.user.repository.RequestRepository;
 import ru.practicum.user.repository.UserRepository;
 
@@ -315,9 +316,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public CommentDto postComment(NewCommentDto dto, Long userId) {
-        dto.setUserId(userId);
+        Event event = eventRepository.findById(dto.getEventId())
+                .orElseThrow(() -> new NotFoundException("Event with id=" + dto.getEventId() + "was not found"));
 
-        Comment newComment = commentMapper.toEntity(dto);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Event with id=" + dto.getEventId() + "was not found"));
+
+        Comment newComment = commentMapper.toEntity(dto, event, user);
 
         return commentMapper.mapDto(commentRepository.save(newComment));
     }
@@ -334,9 +339,13 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        dto.setUserId(userId);
+        Event event = eventRepository.findById(dto.getEventId())
+                .orElseThrow(() -> new NotFoundException("Event with id=" + dto.getEventId() + "was not found"));
 
-        Comment updatedComment = commentMapper.toEntity(dto);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Event with id=" + dto.getEventId() + "was not found"));
+
+        Comment updatedComment = commentMapper.toEntity(dto, event, user);
         updatedComment.setId(commentId);
 
         return commentMapper.mapDto(commentRepository.save(updatedComment));

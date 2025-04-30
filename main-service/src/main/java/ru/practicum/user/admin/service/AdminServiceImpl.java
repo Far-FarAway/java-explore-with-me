@@ -25,6 +25,7 @@ import ru.practicum.compilation.mapper.CompilationMapper;
 import ru.practicum.compilation.model.Compilation;
 import ru.practicum.compilation.repository.CompilationRepository;
 import ru.practicum.event.dto.EventFullDto;
+import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.dto.NewEventDto;
 import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
@@ -41,6 +42,7 @@ import ru.practicum.user.dto.NewUserRequest;
 import ru.practicum.user.dto.UserDto;
 import ru.practicum.user.mapper.UserMapper;
 import ru.practicum.user.model.SearchProperties;
+import ru.practicum.user.model.User;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -308,7 +310,13 @@ public class AdminServiceImpl implements AdminService {
             throw new NotFoundException("Comment with id=" + commentId + "was not found");
         }
 
-        Comment updatedComment = commentMapper.toEntity(dto);
+        Event event = eventRepository.findById(dto.getEventId())
+                .orElseThrow(() -> new NotFoundException("Event with id=" + dto.getEventId() + "was not found"));
+
+        User user = repository.findById(dto.getUserId())
+                .orElseThrow(() -> new NotFoundException("User with id=" + dto.getUserId() + "was not found"));
+
+        Comment updatedComment = commentMapper.toEntity(dto, event, user);
         updatedComment.setId(commentId);
 
         return commentMapper.mapDto(commentRepository.save(updatedComment));

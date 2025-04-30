@@ -90,15 +90,15 @@ public class UserController {
         return service.postComment(dto, userId);
     }
 
-    @PatchMapping("/{userId}/comments/{comId}")
+    @PatchMapping("/{userId}/comments/{commentId}")
     public CommentDto patchComment(@Validated @RequestBody NewCommentDto dto,
-                                   @PathVariable(name = "comId") Long commentId,
+                                   @PathVariable Long commentId,
                                    @PathVariable Long userId) {
         return service.patchComment(dto, commentId, userId);
     }
 
-    @DeleteMapping("/{userId}/comments/{comId}")
-    public void deleteComment(@PathVariable(name = "comId") Long commentId, @PathVariable Long userId) {
+    @DeleteMapping("/{userId}/comments/{commentId}")
+    public void deleteComment(@PathVariable Long commentId, @PathVariable Long userId) {
         service.deleteComment(commentId, userId);
     }
 }

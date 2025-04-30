@@ -10,13 +10,15 @@ import org.hibernate.validator.constraints.Length;
 import ru.practicum.marker.OnCreate;
 import ru.practicum.marker.OnUpdate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Builder
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RequestCompilationDto {
-    List<Long> events;
+    @Builder.Default
+    List<Long> events  = new ArrayList<>();
     @NotNull(groups = OnCreate.class)
     boolean pinned;
     @NotNull(groups = OnCreate.class)

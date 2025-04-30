@@ -1,6 +1,7 @@
 package ru.practicum.event.service;
 
 import com.querydsl.core.BooleanBuilder;
+import ru.practicum.comment.dto.CommentDto;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.user.model.SearchProperties;
@@ -14,4 +15,6 @@ public interface EventsService {
     EventFullDto getEvent(Long id, String ip);
 
     void prepareQueryToGetEvents(BooleanBuilder predicates, SearchProperties properties, Map<String, Object> params);
+
+    List<CommentDto> getComments(Long id);
 }

@@ -2,6 +2,8 @@ package ru.practicum.user.admin.service;
 
 import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.category.dto.NewCategoryDto;
+import ru.practicum.comment.dto.CommentDto;
+import ru.practicum.comment.dto.NewCommentDto;
 import ru.practicum.compilation.dto.CompilationDto;
 import ru.practicum.compilation.dto.RequestCompilationDto;
 import ru.practicum.event.dto.EventFullDto;
@@ -34,4 +36,8 @@ public interface AdminService {
     EventFullDto patchEvent(NewEventDto dto, Long eventId);
 
     List<EventFullDto> getEvents(SearchProperties properties);
+
+    CommentDto patchComment(NewCommentDto dto, Long commentId);
+
+    void deleteComment(Long commentId);
 }

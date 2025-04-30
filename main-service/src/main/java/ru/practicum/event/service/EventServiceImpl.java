@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 import ru.practicum.Client;
 import ru.practicum.RequestStatDto;
 import ru.practicum.ResponseStatDto;
+import ru.practicum.comment.dto.CommentDto;
+import ru.practicum.comment.mapper.CommentMapper;
+import ru.practicum.comment.repository.CommentRepository;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.mapper.EventMapper;
@@ -29,11 +32,13 @@ import java.util.stream.StreamSupport;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class  EventServiceImpl implements EventsService {
+public class EventServiceImpl implements EventsService {
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     EventRepository repository;
     AdminRepository adminRepository;
+    CommentRepository commentRepository;
     EventMapper mapper;
+    CommentMapper commentMapper;
     Client client;
 
     @Override
@@ -95,15 +100,15 @@ public class  EventServiceImpl implements EventsService {
                 .toList();
 
         events.forEach(event -> {
-                    RequestStatDto stat = RequestStatDto.builder()
-                            .app("ewm-main-service")
-                            .uri("/events/" + event.getId())
-                            .ip(ip)
-                            .timestamp(LocalDateTime.now().format(formatter))
-                            .build();
+            RequestStatDto stat = RequestStatDto.builder()
+                    .app("ewm-main-service")
+                    .uri("/events/" + event.getId())
+                    .ip(ip)
+                    .timestamp(LocalDateTime.now().format(formatter))
+                    .build();
 
-                    client.postStat(stat);
-                });
+            client.postStat(stat);
+        });
 
         if (properties.getSort() != null && !properties.getSort().isEmpty()) {
             if (properties.getSort().equals(SortType.EVENT_DATE.name())) {
@@ -216,5 +221,16 @@ public class  EventServiceImpl implements EventsService {
         if (properties.getOnlyAvailable() != null && properties.getOnlyAvailable()) {
             predicates.and(event.participantLimit.gt(event.confirmRequests).or(event.participantLimit.eq(0)));
         }
+    }
+
+    @Override
+    public List<CommentDto> getComments(Long id) {
+        if (!repository.existsById(id)) {
+            throw new NotFoundException("Event with id=" + id + " was not found");
+        }
+
+        return commentRepository.findByEventId(id).stream()
+                .map(commentMapper::mapDto)
+                .toList();
     }
 }

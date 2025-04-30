@@ -1,5 +1,7 @@
 package ru.practicum.user.service;
 
+import ru.practicum.comment.dto.CommentDto;
+import ru.practicum.comment.dto.NewCommentDto;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.dto.NewEventDto;
@@ -27,4 +29,10 @@ public interface UserService {
     List<ParticipationRequestDto> getUserEventRequests(Long userId, Long eventId);
 
     EventRequestStatusUpdateResult patchUserEventRequests(Long userId, Long eventId, EventRequestStatusUpdateRequest dto);
+
+    CommentDto postComment(NewCommentDto dto, Long userId);
+
+    CommentDto patchComment(NewCommentDto dto, Long commentId, Long userId);
+
+    void deleteComment(Long commentId, Long userId);
 }

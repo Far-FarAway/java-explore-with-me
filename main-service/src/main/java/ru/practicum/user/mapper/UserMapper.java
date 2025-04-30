@@ -1,7 +1,6 @@
 package ru.practicum.user.mapper;
 
 import org.springframework.stereotype.Component;
-import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.InternalServerException;
 import ru.practicum.user.dto.NewUserRequest;
 import ru.practicum.user.dto.UserDto;

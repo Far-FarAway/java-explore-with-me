@@ -8,20 +8,14 @@ import ru.practicum.comment.dto.CommentDto;
 import ru.practicum.comment.dto.NewCommentDto;
 import ru.practicum.comment.model.Comment;
 import ru.practicum.event.model.Event;
-import ru.practicum.event.repository.EventRepository;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.InternalServerException;
-import ru.practicum.exception.NotFoundException;
 import ru.practicum.user.model.User;
-import ru.practicum.user.repository.UserRepository;
 
 @Component
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CommentMapper {
-    EventRepository eventRepository;
-    UserRepository userRepository;
-
     public Comment toEntity(NewCommentDto dto, Event event, User user) {
         if (dto.getText().isEmpty() || dto.getText().isBlank()) {
             throw new ConflictException("Comment text is null or blank", "Conflict with class field");

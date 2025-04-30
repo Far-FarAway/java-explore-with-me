@@ -10,7 +10,6 @@ import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.dto.NewEventDto;
 import ru.practicum.event.model.Event;
-import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.InternalServerException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.user.mapper.UserMapper;

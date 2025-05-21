@@ -9,6 +9,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.category.dto.NewCategoryDto;
+import ru.practicum.comment.dto.CommentDto;
+import ru.practicum.comment.dto.NewCommentDto;
 import ru.practicum.compilation.dto.CompilationDto;
 import ru.practicum.compilation.dto.RequestCompilationDto;
 import ru.practicum.event.dto.EventFullDto;
@@ -111,5 +113,16 @@ public class AdminController {
                 .build();
 
         return service.getEvents(properties);
+    }
+
+    @PatchMapping("comments/{commentId}")
+    public CommentDto patchComment(@Validated @RequestBody NewCommentDto dto,
+                                   @PathVariable Long commentId) {
+        return service.patchComment(dto, commentId);
+    }
+
+    @DeleteMapping("comments/{commentId}")
+    public void deleteComment(@PathVariable Long commentId) {
+        service.deleteComment(commentId);
     }
 }

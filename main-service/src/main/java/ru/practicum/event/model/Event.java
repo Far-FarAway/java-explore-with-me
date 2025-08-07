@@ -44,6 +44,7 @@ public class Event {
     @Embedded
     Location location;
     @Column
+    @Builder.Default
     boolean paid = false;
     @Column(name = "participant_limit")
     @Builder.Default

@@ -14,8 +14,8 @@ import ru.practicum.marker.OnUpdate;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NewCategoryDto {
-    @NotBlank(groups = OnCreate.class)
-    @NotNull(groups = OnCreate.class)
+    @NotBlank(groups = {OnCreate.class, OnUpdate.class})
+    @NotNull(groups = {OnCreate.class, OnUpdate.class})
     @Length(groups = {OnCreate.class, OnUpdate.class},
             max = 50)
     String name;

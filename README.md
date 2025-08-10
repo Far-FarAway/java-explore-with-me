@@ -7,4 +7,4 @@
 Также в проекте реализован микросервис по обработке статистики просмотров каждого события, обращение к которому
 происходит внутри основного сервера приложения.
 
-Стек технологий: java, spring boot, hibernate, maven, postgreSQL, docker, postman.
+Стек технологий: java, spring boot, hibernate, maven, postgreSQL, docker, postman, JUnit, mockito.

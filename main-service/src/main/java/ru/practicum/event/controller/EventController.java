@@ -51,11 +51,13 @@ public class EventController {
 
     @GetMapping("/{id}")
     public EventFullDto getEvent(@PathVariable Long id, HttpServletRequest request) {
+        log.info("Получение события с id {}", id);
         return service.getEvent(id, request.getRemoteAddr());
     }
 
     @GetMapping("/{id}/comments")
     public List<CommentDto> getComments(@PathVariable Long id) {
+        log.info("Получение комментария с id {}", id);
         return service.getComments(id);
     }
 }

@@ -43,54 +43,62 @@ public class AdminController {
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto postUser(@Validated(OnCreate.class) @RequestBody NewUserRequest user) {
+        log.info("Сохранение пользователя {}", user);
         return service.postUser(user);
     }
 
     @DeleteMapping("/users/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable Long userId) {
+        log.info("Удаление пользователя {}", userId);
         service.deleteUser(userId);
     }
 
     @PostMapping("/categories")
     @ResponseStatus(HttpStatus.CREATED)
     public CategoryDto postCategory(@Validated(OnCreate.class) @RequestBody NewCategoryDto dto) {
-        log.info("Post category = {}", dto);
+        log.info("Сохранение категории = {}", dto);
         return service.postCategory(dto);
     }
 
     @DeleteMapping("/categories/{catId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCategory(@PathVariable(name = "catId") Long categoryId) {
+        log.info("Удаление категории с id {}",  categoryId);
         service.deleteCategory(categoryId);
     }
 
     @PatchMapping("/categories/{catId}")
-    public CategoryDto patchCategory(@Validated(OnUpdate.class) @RequestBody NewCategoryDto dto, @PathVariable(name = "catId") Long categoryId) {
+    public CategoryDto patchCategory(@Validated(OnUpdate.class) @RequestBody NewCategoryDto dto,
+                                     @PathVariable(name = "catId") Long categoryId) {
+        log.info("Обновление категории с id {} на {}", categoryId, dto);
         return service.patchCategory(dto, categoryId);
     }
 
     @PostMapping("/compilations")
     @ResponseStatus(HttpStatus.CREATED)
     public CompilationDto postCompilation(@Validated(OnCreate.class) @RequestBody RequestCompilationDto dto) {
+        log.info("Сохранение подборки событий {}", dto);
         return service.postCompilation(dto);
     }
 
     @DeleteMapping("/compilations/{compId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCompilation(@PathVariable(name = "compId") Long compilationId) {
+        log.info("Удаление подборки событий с id {}", compilationId);
         service.deleteCompilation(compilationId);
     }
 
     @PatchMapping("/compilations/{compId}")
     public CompilationDto patchCompilation(@Validated(OnUpdate.class) @RequestBody RequestCompilationDto dto,
                                            @PathVariable(name = "compId") Long compilationId) {
+        log.info("Обновление подборки событий с id {} на {}", compilationId, dto);
         return service.patchCompilation(dto, compilationId);
     }
 
     @PatchMapping("/events/{eventId}")
     public EventFullDto patchEvent(@Validated(OnUpdate.class) @RequestBody NewEventDto dto, @PathVariable Long eventId) {
-        log.info("Patch event(id={}) with properties: {}", eventId, dto);
+        log.info("Обновление события с id {} на {}", eventId, dto);
         return service.patchEvent(dto, eventId);
     }
 
@@ -112,17 +120,20 @@ public class AdminController {
                 .size(size)
                 .build();
 
+        log.info("Получение событий с фильтрами {}", properties);
         return service.getEvents(properties);
     }
 
     @PatchMapping("comments/{commentId}")
     public CommentDto patchComment(@Validated @RequestBody NewCommentDto dto,
                                    @PathVariable Long commentId) {
+        log.info("Обновление комментария с id {} на {}", commentId, dto);
         return service.patchComment(dto, commentId);
     }
 
     @DeleteMapping("comments/{commentId}")
     public void deleteComment(@PathVariable Long commentId) {
+        log.info("Удаление комментария с id {}", commentId);
         service.deleteComment(commentId);
     }
 }
